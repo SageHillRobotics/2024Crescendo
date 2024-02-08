@@ -165,7 +165,6 @@ public class Swerve extends SubsystemBase {
     @Override
     public void periodic(){
         swerveOdometry.update(getYaw(), getModulePositions());  
-        swervePoseEstimator.update(getYaw(), getModulePositions());
         //Optional<EstimatedRobotPose> globalPose = cam.getEstimatedGlobalPose(); 
         //swervePoseEstimator.addVisionMeasurement(globalPose.get().estimatedPose.toPose2d(), globalPose.get().timestampSeconds);
         for(SwerveModule mod : mSwerveMods){
