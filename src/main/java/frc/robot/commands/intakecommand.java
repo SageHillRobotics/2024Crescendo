@@ -3,9 +3,9 @@ package frc.robot;
 import frc.robot.subsystems.Intake;
 
 
-public class intakecommand extends Command{
+public class IntakeCommand extends Command{
     private final m_Intake;
-    public intakecommand(Intake m_Intake){
+    public IntakeCommand(Intake m_Intake){
         m_Intake = m_Intake
     }
     
