@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import frc.robot.autos.*;
 import frc.robot.commands.*;
-import frc.robot.commands.SwervePIDCommands.*;
+import frc.robot.commands.AnglePID;
 import frc.robot.subsystems.*;
 
 /**
@@ -32,9 +32,9 @@ public class RobotContainer {
     /* Driver Buttons */
     private final JoystickButton zeroGyro = new JoystickButton(driver, 2);
     private final JoystickButton robotCentric = new JoystickButton(driver, 12);
-    private final JoystickButton sourceButton = new JoystickButton(driver, 5);
-    private final JoystickButton speakerButton = new JoystickButton(driver, 4);
-    private final JoystickButton ampButton = new JoystickButton(driver, 3);
+    private final JoystickButton sourceButton = new JoystickButton(driver, 6);
+    private final JoystickButton speakerButton = new JoystickButton(driver, 3);
+    private final JoystickButton ampButton = new JoystickButton(driver, 5);
 
     /* Subsystems */
     public final Swerve s_Swerve = new Swerve();
@@ -66,17 +66,20 @@ public class RobotContainer {
     private void configureButtonBindings() {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroGyro()));
-        sourceButton.onTrue(new SourcePID(s_Swerve, 
-            () -> -driver.getRawAxis(translationAxis), 
-            () -> -driver.getRawAxis(strafeAxis))
+        sourceButton.onTrue(new AnglePID(s_Swerve, 
+        -45,
+        () -> -driver.getRawAxis(translationAxis), 
+        () -> -driver.getRawAxis(strafeAxis))
         );
-        speakerButton.onTrue(new SpeakerPID(s_Swerve, 
-            () -> -driver.getRawAxis(translationAxis), 
-            () -> -driver.getRawAxis(strafeAxis))
+        speakerButton.onTrue(new AnglePID(s_Swerve, 
+        180,
+        () -> -driver.getRawAxis(translationAxis), 
+        () -> -driver.getRawAxis(strafeAxis))
         );
-        ampButton.onTrue(new AmpPID(s_Swerve, 
-            () -> -driver.getRawAxis(translationAxis), 
-            () -> -driver.getRawAxis(strafeAxis))
+        ampButton.onTrue(new AnglePID(s_Swerve, 
+        90,
+        () -> -driver.getRawAxis(translationAxis), 
+        () -> -driver.getRawAxis(strafeAxis))
         );
     }
 

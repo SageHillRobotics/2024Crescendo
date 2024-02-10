@@ -1,4 +1,4 @@
-package frc.robot.commands.SwervePIDCommands;
+package frc.robot.commands;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.Swerve;
@@ -6,38 +6,39 @@ import frc.robot.subsystems.Swerve;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
-public class SpeakerPID extends Command {
+public class AnglePID extends Command {
     private Swerve s_Swerve;
     private DoubleSupplier translationSup;
     private DoubleSupplier strafeSup;
-    private ProfiledPIDController angleController;
+    private PIDController angleController;
+    private double targetAngle;
     private SlewRateLimiter translationLimiter = new SlewRateLimiter(3.0);
     private SlewRateLimiter strafeLimiter = new SlewRateLimiter(3.0);
-    public SpeakerPID(Swerve s_Swerve, DoubleSupplier translationSup, DoubleSupplier strafeSup){
+    public AnglePID(Swerve s_Swerve, double targetAngle, DoubleSupplier translationSup, DoubleSupplier strafeSup){
         addRequirements(s_Swerve);
         this.s_Swerve = s_Swerve;
+        this.targetAngle = targetAngle;
         this.translationSup = translationSup;
         this.strafeSup = strafeSup;
+        angleController = new PIDController(.01, 0, 0);
     }
     @Override
     public void initialize(){
-        angleController = new ProfiledPIDController(.01, 0, 0, Constants.AutoConstants.kThetaControllerConstraints);
-        angleController.setGoal(180);
         angleController.enableContinuousInput(-180, 180);
         angleController.setTolerance(3);
     }
     @Override
-    public void execute() {
+    public void execute(){
         Pose2d currPose = s_Swerve.getPose();
         double currRotation = currPose.getRotation().getDegrees();
-        double output = angleController.calculate(currRotation);
+        double output = angleController.calculate(currRotation, targetAngle);
         double translationVal =
         translationLimiter.calculate(
             MathUtil.applyDeadband(translationSup.getAsDouble(), 0.2));
@@ -51,7 +52,9 @@ public class SpeakerPID extends Command {
         true,
         true);
         SmartDashboard.putNumber("currPose", currRotation);
+        SmartDashboard.putNumber("goal", angleController.getSetpoint());
         SmartDashboard.putNumber("output", output);
+        SmartDashboard.putNumber("error", angleController.getPositionError());
     }
 
 
