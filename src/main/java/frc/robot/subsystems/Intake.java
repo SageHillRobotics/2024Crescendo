@@ -6,6 +6,7 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Elevator extends SubsystemBase{
+    private final CANSparkMax intakeCollectionMotor;
     private final CANSparkMax intakeRetractionMotor;
     private final RelativeEncoder intakeMotorEncoder;
     private final SparkAbsoluteEncoder intakeAbsoluteEncoder;
@@ -14,6 +15,7 @@ public class Elevator extends SubsystemBase{
 
     public Intake(){
         
+        intakeCollectionMotor new CANSparkMax(0,MotorType.kBrushless);
         intakeRetractionMotor = new CANSparkMax(deviceID, MotorType.kBrushless);
         SparkPIDController pid = intakeRetractionMotor.getPIDController();
         pid.setOutputRange(-0.5,0.5);
