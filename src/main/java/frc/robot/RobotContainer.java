@@ -21,6 +21,7 @@ public class RobotContainer {
     
     /* Controllers */
     private final Joystick driver = new Joystick(0);
+    private final XboxController armController = new XboxController(1);
 
     /* Drive Controls */
     private final int translationAxis = 1;
@@ -31,11 +32,14 @@ public class RobotContainer {
     private final JoystickButton zeroGyro = new JoystickButton(driver, 2);
     private final JoystickButton robotCentric = new JoystickButton(driver, 12);
     private final JoystickButton toggleIntakeMotor = new JoystickButton(driver, 5);
+    private final JoystickButton toggleElevatorExtension = new JoystickButton(armController, XboxController.Button.kB.value);
+    
 
     /* Subsystems */
     public final Swerve s_Swerve = new Swerve();
     public final Intake intake = new Intake();
-
+    public final Elevator elevator = new Elevator();
+    
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         s_Swerve.setDefaultCommand(
@@ -62,6 +66,7 @@ public class RobotContainer {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroGyro()));
         toggleIntakeMotor.toggleOnTrue(new ToggleIntakeMotor(intake));
+        toggleElevatorExtension.toggleOnTrue(new ToggleElevatorExtension(elevator));
     }
 
     /**
