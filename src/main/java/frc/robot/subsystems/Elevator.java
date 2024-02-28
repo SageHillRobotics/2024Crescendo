@@ -26,17 +26,13 @@ public class Elevator extends SubsystemBase{
         topRight = new CANSparkMax(53, MotorType.kBrushless);
         bottomRight = new CANSparkMax(54, MotorType.kBrushless);
 
-        topLeft.setSmartCurrentLimit(30);
-        bottomLeft.setSmartCurrentLimit(30);
-        topRight.setSmartCurrentLimit(30);
-        bottomRight.setSmartCurrentLimit(30);
+        topLeft.setSmartCurrentLimit(38);
+        bottomLeft.setSmartCurrentLimit(38);
+        topRight.setSmartCurrentLimit(38)   ;
+        bottomRight.setSmartCurrentLimit(38);
 
         revThroughBoreEncoder = new Encoder(4, 5, false, Encoder.EncodingType.k4X);
         revThroughBoreEncoder.setDistancePerPulse(1./EXTENDED_ENCODER_VALUE);
-
-        bottomRight.follow(topRight);
-        topLeft.follow(topRight, true);
-        bottomLeft.follow(topRight, true);
 
         pidController = new PIDController(.000075, 0, 0);
 
@@ -49,18 +45,24 @@ public class Elevator extends SubsystemBase{
     }
 
     public void extendPID(){
-        pidController.setP(.5);
-        pidController.setI(.2);
-        pidController.setD(.4);
-        double output = pidController.calculate(revThroughBoreEncoder.getDistance(), 1);
-        topRight.set(output);
-    }
-    public void retractPID(){
-        pidController.setP(.1);
+        pidController.setP(1);
         pidController.setI(0);
         pidController.setD(0);
-        double output = pidController.calculate(revThroughBoreEncoder.getDistance(), 0);
+        double output = pidController.calculate(revThroughBoreEncoder.getDistance(), 1);
         topRight.set(output);
+        bottomRight.set(output);
+        topLeft.set(-output);
+        bottomLeft.set(-output);
+    }
+    public void retractPID(){
+        pidController.setP(.02);
+        pidController.setI(0);
+        pidController.setD(0);
+        double output = pidController.calculate(revThroughBoreEncoder.getDistance(), .05);
+        topRight.set(output);
+        bottomRight.set(output);
+        topLeft.set(-output);
+        bottomLeft.set(-output);
     }
     @Override
     public void periodic(){
@@ -69,6 +71,11 @@ public class Elevator extends SubsystemBase{
         SmartDashboard.putBoolean("limit seitch", limitSwitch.get());
         if (!limitSwitch.get()){
             revThroughBoreEncoder.reset();
+            topRight.stopMotor();
+            topLeft.stopMotor();
+            bottomRight.stopMotor();
+            bottomLeft.stopMotor();
+
         }
     }
 }

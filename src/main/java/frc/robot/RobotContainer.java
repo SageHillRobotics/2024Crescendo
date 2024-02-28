@@ -5,8 +5,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autos.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
@@ -21,7 +22,7 @@ public class RobotContainer {
     
     /* Controllers */
     private final Joystick driver = new Joystick(0);
-    private final XboxController armController = new XboxController(1);
+    private final CommandXboxController armController = new CommandXboxController(1);
 
     /* Drive Controls */
     private final int translationAxis = 1;
@@ -32,13 +33,16 @@ public class RobotContainer {
     private final JoystickButton zeroGyro = new JoystickButton(driver, 2);
     private final JoystickButton robotCentric = new JoystickButton(driver, 12);
     private final JoystickButton toggleIntakeMotor = new JoystickButton(driver, 5);
-    private final JoystickButton toggleElevatorExtension = new JoystickButton(armController, XboxController.Button.kB.value);
+    private final Trigger toggleElevatorExtension = armController.a();
+    private final Trigger spinFlywheel = armController.rightBumper();
+    private final Trigger shoot = armController.rightTrigger();
     
 
     /* Subsystems */
     public final Swerve s_Swerve = new Swerve();
     public final Intake intake = new Intake();
     public final Elevator elevator = new Elevator();
+    public final Flywheel flywheel = new Flywheel();
     
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -67,6 +71,8 @@ public class RobotContainer {
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroGyro()));
         toggleIntakeMotor.toggleOnTrue(new ToggleIntakeMotor(intake));
         toggleElevatorExtension.toggleOnTrue(new ToggleElevatorExtension(elevator));
+        spinFlywheel.toggleOnTrue(new SpinFlywheel(flywheel));
+        shoot.toggleOnTrue(new Shoot(flywheel));
     }
 
     /**
