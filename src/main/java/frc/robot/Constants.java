@@ -4,7 +4,9 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -145,5 +147,11 @@ public final class Constants {
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
         new TrapezoidProfile.Constraints(
             kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+  }
+
+  public static final class Vision {
+    public static final Translation3d camPosition = new Translation3d(Units.inchesToMeters(11.75), Units.inchesToMeters(3.25), Units.inchesToMeters(26));
+    public static final Rotation3d camRotation =  new Rotation3d(0, 0, Units.degreesToRadians(12.5)); // TODO: change pitch value
+
   }
 }
