@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autos.*;
 import frc.robot.commands.*;
+import frc.robot.commands.AnglePID;
 import frc.robot.subsystems.*;
 
 /**
@@ -27,11 +28,15 @@ public class RobotContainer {
     /* Drive Controls */
     private final int translationAxis = 1;
     private final int strafeAxis = 0;
-    private final int rotationAxis = 2;
+    private final int cwButton = 8;
+    private final int ccwButton = 7;
 
     /* Driver Buttons */
     private final JoystickButton zeroGyro = new JoystickButton(driver, 2);
     private final JoystickButton robotCentric = new JoystickButton(driver, 12);
+    private final JoystickButton sourceButton = new JoystickButton(driver, 6);
+    private final JoystickButton speakerButton = new JoystickButton(driver, 3);
+    private final JoystickButton ampButton = new JoystickButton(driver, 5);
     private final JoystickButton toggleIntakeMotor = new JoystickButton(driver, 5);
     private final Trigger toggleElevatorExtension = armController.a();
     private final Trigger spinFlywheel = armController.rightBumper();
@@ -51,13 +56,15 @@ public class RobotContainer {
                 s_Swerve, 
                 () -> -driver.getRawAxis(translationAxis), 
                 () -> -driver.getRawAxis(strafeAxis), 
-                () -> -driver.getRawAxis(rotationAxis), 
+                () -> driver.getRawButton(cwButton),
+                () -> driver.getRawButton(ccwButton),
                 () -> robotCentric.getAsBoolean()
             )
         );
 
         // Configure the button bindings
         configureButtonBindings();
+        
     }
 
     /**
@@ -69,6 +76,21 @@ public class RobotContainer {
     private void configureButtonBindings() {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroGyro()));
+        sourceButton.onTrue(new AnglePID(s_Swerve, 
+        -45,
+        () -> -driver.getRawAxis(translationAxis), 
+        () -> -driver.getRawAxis(strafeAxis))
+        );
+        speakerButton.onTrue(new AnglePID(s_Swerve, 
+        180,
+        () -> -driver.getRawAxis(translationAxis), 
+        () -> -driver.getRawAxis(strafeAxis))
+        );
+        ampButton.onTrue(new AnglePID(s_Swerve, 
+        90,
+        () -> -driver.getRawAxis(translationAxis), 
+        () -> -driver.getRawAxis(strafeAxis))
+        );
         toggleIntakeMotor.toggleOnTrue(new ToggleIntakeMotor(intake));
         toggleElevatorExtension.toggleOnTrue(new ToggleElevatorExtension(elevator));
         spinFlywheel.toggleOnTrue(new SpinFlywheel(flywheel));
