@@ -32,7 +32,7 @@ public class AnglePID extends Command {
     @Override
     public void initialize(){
         angleController.enableContinuousInput(-180, 180);
-        angleController.setTolerance(3);
+        angleController.setTolerance(2);
     }
     @Override
     public void execute(){

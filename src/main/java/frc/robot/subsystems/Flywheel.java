@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Flywheel extends SubsystemBase{
@@ -19,6 +21,21 @@ public class Flywheel extends SubsystemBase{
         leftFlywheel.set(1);
         rightFlywheel.set(.75);
     }
+    public void setFlywheelSpeed(double speed){
+        leftFlywheel.set(speed);
+
+    }
+
+    public void intake(){
+        leftFlywheel.set(-.25);
+        rightFlywheel.set(-.25);
+        indexMotor.setIdleMode(IdleMode.kCoast);
+    }
+
+    public void brake(){
+        indexMotor.setIdleMode(IdleMode.kBrake);
+    }
+
     public void shoot(){
         indexMotor.set(1);
     }
@@ -29,5 +46,11 @@ public class Flywheel extends SubsystemBase{
         rightFlywheel.stopMotor();
         leftFlywheel.stopMotor();
     }
-    
+    public double getCurrent(){
+        return leftFlywheel.getOutputCurrent();
+    }
+    @Override
+    public void periodic(){
+        SmartDashboard.putNumber("current", getCurrent());
+    }
 }

@@ -1,81 +1,98 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxAlternateEncoder;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
 public class Elevator extends SubsystemBase{
-    private static final  double EXTENDED_ENCODER_VALUE = 4800;
+    private static final  double AMP_ENCODER_VALUE = 2.34;
+    private static final double INTAKE_ENCODER_VALUE = 1.0;
+    private final CANSparkMax leader;
     private final CANSparkMax topLeft;
     private final CANSparkMax bottomLeft;
-    private final CANSparkMax topRight;
     private final CANSparkMax bottomRight;
-    private final Encoder revThroughBoreEncoder;
-    private final PIDController pidController;
+    private final RelativeEncoder leaderIntegratedEncoder;
+    private final RelativeEncoder throughBoreEncoder;
+    private final SparkPIDController pidController;
     private final DigitalInput limitSwitch;
     
     public Elevator(){
-        topLeft = new CANSparkMax(51, MotorType.kBrushless);
-        bottomLeft = new CANSparkMax(52, MotorType.kBrushless);
-        topRight = new CANSparkMax(53, MotorType.kBrushless);
+
+        leader = new CANSparkMax(53, MotorType.kBrushless);
         bottomRight = new CANSparkMax(54, MotorType.kBrushless);
-
-        topLeft.setSmartCurrentLimit(38);
-        bottomLeft.setSmartCurrentLimit(38);
-        topRight.setSmartCurrentLimit(38)   ;
-        bottomRight.setSmartCurrentLimit(38);
-
-        revThroughBoreEncoder = new Encoder(4, 5, false, Encoder.EncodingType.k4X);
-        revThroughBoreEncoder.setDistancePerPulse(1./EXTENDED_ENCODER_VALUE);
-
-        pidController = new PIDController(.000075, 0, 0);
-
-        limitSwitch = new DigitalInput(9);
+        topLeft = new CANSparkMax(52, MotorType.kBrushless);
+        bottomLeft = new CANSparkMax(51, MotorType.kBrushless);
         
+        leader.restoreFactoryDefaults();
+        bottomRight.restoreFactoryDefaults();
+        topLeft.restoreFactoryDefaults();
+        bottomLeft.restoreFactoryDefaults();
+
+        leader.setIdleMode(IdleMode.kCoast);
+        bottomRight.setIdleMode(IdleMode.kCoast);
+        topLeft.setIdleMode(IdleMode.kCoast);
+        bottomLeft.setIdleMode(IdleMode.kCoast);
+
+        bottomRight.follow(leader);
+        topLeft.follow(leader, true);
+        bottomLeft.follow(leader, true);
+
+
+        leaderIntegratedEncoder = leader.getEncoder();
+        throughBoreEncoder = leader.getAlternateEncoder(SparkMaxAlternateEncoder.Type.kQuadrature, 8192);
+        throughBoreEncoder.setInverted(true);
+
+        pidController = leader.getPIDController();
+        pidController.setFeedbackDevice(throughBoreEncoder);
+        
+        pidController.setP(0.2);
+        pidController.setI(0);
+        pidController.setD(.1);
+        pidController.setFF(.055);
+        pidController.setOutputRange(-1, 1);
+
+        leader.burnFlash();
+        bottomRight.burnFlash();
+        topLeft.burnFlash();
+        bottomLeft.burnFlash();
+        
+        limitSwitch = new DigitalInput(9);
     }
 
-    public void setSpeed(double speed){
-        topRight.set(speed);
+    public void intakePosition(){
+        pidController.setReference(INTAKE_ENCODER_VALUE, ControlType.kPosition);
+    }
+    public void ampPosition(){
+        pidController.setReference(AMP_ENCODER_VALUE, ControlType.kPosition);
+    }
+    public void retract(){
+        pidController.setReference(0.2, ControlType.kPosition);
     }
 
-    public void extendPID(){
-        pidController.setP(1);
-        pidController.setI(0);
-        pidController.setD(0);
-        double output = pidController.calculate(revThroughBoreEncoder.getDistance(), 1);
-        topRight.set(output);
-        bottomRight.set(output);
-        topLeft.set(-output);
-        bottomLeft.set(-output);
-    }
-    public void retractPID(){
-        pidController.setP(.02);
-        pidController.setI(0);
-        pidController.setD(0);
-        double output = pidController.calculate(revThroughBoreEncoder.getDistance(), .05);
-        topRight.set(output);
-        bottomRight.set(output);
-        topLeft.set(-output);
-        bottomLeft.set(-output);
-    }
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("through bore encoder pulses", revThroughBoreEncoder.get());
-        SmartDashboard.putNumber("through bore encoder distance", revThroughBoreEncoder.getDistance());
-        SmartDashboard.putBoolean("limit seitch", limitSwitch.get());
+        SmartDashboard.putNumber("leader integrated encoder position", leaderIntegratedEncoder.getPosition());
+        SmartDashboard.putNumber("through bore encoder value", throughBoreEncoder.getPosition());
+        SmartDashboard.putBoolean("limit switch", limitSwitch.get());
+        
         if (!limitSwitch.get()){
-            revThroughBoreEncoder.reset();
-            topRight.stopMotor();
+            leaderIntegratedEncoder.setPosition(0);
+            throughBoreEncoder.setPosition(0);
+            leader.stopMotor();
             topLeft.stopMotor();
             bottomRight.stopMotor();
             bottomLeft.stopMotor();
 
         }
+        
     }
 }
