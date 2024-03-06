@@ -6,7 +6,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 // import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
-
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -57,7 +56,7 @@ public class Swerve extends SubsystemBase {
         resetModulesToAbsolute();
 
         // swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getYaw(), getModulePositions());
-        swervePoseEstimator = new SwerveDrivePoseEstimator(null, getYaw(), getModulePositions(), getPose());
+        swervePoseEstimator = new SwerveDrivePoseEstimator(Constants.Swerve.swerveKinematics, getYaw(), getModulePositions(), new Pose2d());
         
         AutoBuilder.configureHolonomic(
             this::getPose, // Robot pose supplier
@@ -181,7 +180,9 @@ public class Swerve extends SubsystemBase {
         if (estimatedGlobalPose.isPresent()) {
             swervePoseEstimator.addVisionMeasurement(estimatedGlobalPose.get().estimatedPose.toPose2d(), estimatedGlobalPose.get().timestampSeconds);
         }
-        
+        SmartDashboard.putNumber("Pose X", swervePoseEstimator.getEstimatedPosition().getX());
+        SmartDashboard.putNumber("Pose y", swervePoseEstimator.getEstimatedPosition().getY());
+
         for (SwerveModule mod : mSwerveMods) {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Cancoder", mod.getCanCoder().getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getPosition().angle.getDegrees());

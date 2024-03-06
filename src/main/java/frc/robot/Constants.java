@@ -150,8 +150,11 @@ public final class Constants {
   }
 
   public static final class Vision {
-    public static final Translation3d camPosition = new Translation3d(Units.inchesToMeters(11.75), Units.inchesToMeters(3.25), Units.inchesToMeters(26));
-    public static final Rotation3d camRotation =  new Rotation3d(0, 0, Units.degreesToRadians(12.5)); // TODO: change pitch value
+    public static final Translation3d camPosition = new Translation3d(Units.inchesToMeters(-11.75), 
+                                                                      Units.inchesToMeters(-3.25), 
+                                                                      Units.inchesToMeters(26));
+    public static final Rotation3d camRotation =  new Rotation3d(0, 0, Units.degreesToRadians(-12.5)); // TODO: change pitch value
 
   }
 }
+

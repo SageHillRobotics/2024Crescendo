@@ -38,7 +38,7 @@ public class RobotContainer {
     public final Swerve s_Swerve = new Swerve();
 
     /* Auto Builder */
-    private final SendableChooser<Command> autoChooser;
+    //private final SendableChooser<Command> autoChooser;
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -53,8 +53,8 @@ public class RobotContainer {
         );
 
         // Build an auto chooser. This will use Commands.none() as the default option.
-        autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("auto chooser", autoChooser);
+        //autoChooser = AutoBuilder.buildAutoChooser();
+        //SmartDashboard.putData("auto chooser", autoChooser);
 
         // Configure the button bindings
         configureButtonBindings();
@@ -72,6 +72,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        return null;
+       //return autoChooser.getSelected();
     }
 }

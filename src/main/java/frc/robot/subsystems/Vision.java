@@ -21,7 +21,7 @@ public class Vision extends SubsystemBase {
     private PhotonPoseEstimator photonPoseEstimator;
 
     public Vision() {
-        cam = new PhotonCamera("GLOBAL_SHUTTER_CAMERA");
+        cam = new PhotonCamera("bruh");
         robotToCam = new Transform3d(Constants.Vision.camPosition, Constants.Vision.camRotation);
         photonPoseEstimator = new PhotonPoseEstimator(aprilTagFieldLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cam, robotToCam);
     }
