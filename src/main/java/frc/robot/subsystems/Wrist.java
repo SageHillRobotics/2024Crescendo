@@ -32,7 +32,7 @@ public class Wrist extends SubsystemBase{
         wristPID.setFeedbackDevice(wristEncoder);
         wristPID.setP(.2);
         wristPID.setI(0);
-        wristPID.setD(.1);
+        wristPID.setD(.2);
 
         angleMotor.burnFlash();
     }
