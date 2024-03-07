@@ -8,7 +8,7 @@ import frc.robot.subsystems.Intake;
 public class IntakeNote extends Command{
     private Intake intake;
     private Flywheel flywheel;
-    private Debouncer debouncer = new Debouncer(.2, Debouncer.DebounceType.kRising);
+    private Debouncer debouncer = new Debouncer(.1, Debouncer.DebounceType.kRising);
     public IntakeNote(Intake intake, Flywheel flywheel){
         this.intake = intake;
         this.flywheel = flywheel;
@@ -21,7 +21,7 @@ public class IntakeNote extends Command{
     }
     @Override
     public boolean isFinished(){
-         return (debouncer.calculate(flywheel.getCurrent() > 20));
+         return (debouncer.calculate(flywheel.getCurrent() > 15));
     }
     @Override
     public void end(boolean interrupted){
