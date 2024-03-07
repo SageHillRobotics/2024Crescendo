@@ -1,15 +1,23 @@
 package frc.robot;
 
+import java.util.Optional;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.autos.*;
 import frc.robot.commands.*;
-import frc.robot.commands.AnglePID;
 import frc.robot.subsystems.*;
 
 /**
@@ -22,6 +30,7 @@ public class RobotContainer {
     
     /* Controllers */
     private final Joystick driver = new Joystick(0);
+    private final CommandXboxController armController = new CommandXboxController(1);
 
     /* Drive Controls */
     private final int translationAxis = 1;
@@ -32,13 +41,25 @@ public class RobotContainer {
     /* Driver Buttons */
     private final JoystickButton zeroGyro = new JoystickButton(driver, 2);
     private final JoystickButton robotCentric = new JoystickButton(driver, 12);
-    private final JoystickButton sourceButton = new JoystickButton(driver, 6);
+    private final JoystickButton sourceButton = new JoystickButton(driver, 5);
     private final JoystickButton speakerButton = new JoystickButton(driver, 3);
-    private final JoystickButton ampButton = new JoystickButton(driver, 5);
+    private final JoystickButton ampButton = new JoystickButton(driver, 4);
+    private final JoystickButton awayButton = new JoystickButton(driver, 6);
+    private final Trigger retractEverything = armController.y();
+    private final Trigger spinFlywheel = armController.rightBumper();
+    private final Trigger shoot = armController.rightTrigger();
+    private final Trigger intakeNote = armController.x();
+    private final Trigger retractElevator = armController.b();
+    private final Trigger extendElevator = armController.a();
+    
 
     /* Subsystems */
     public final Swerve s_Swerve = new Swerve();
-
+    public final Intake intake = new Intake();
+    public final Elevator elevator = new Elevator();
+    public final Flywheel flywheel = new Flywheel();
+    public final Wrist wrist = new Wrist();
+    
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         s_Swerve.setDefaultCommand(
@@ -51,6 +72,9 @@ public class RobotContainer {
                 () -> robotCentric.getAsBoolean()
             )
         );
+        //intake.setDefaultCommand(new RetractIntake(intake));
+        //wrist.setDefaultCommand(new RetractWrist(wrist));
+        
 
         // Configure the button bindings
         configureButtonBindings();
@@ -65,9 +89,14 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         /* Driver Buttons */
+        Optional<Alliance> ally = DriverStation.getAlliance();
+        double invertIfRed = -1.0;
+        if (ally.get() == Alliance.Red) {
+            invertIfRed = 1.0;
+        }
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroGyro()));
         sourceButton.onTrue(new AnglePID(s_Swerve, 
-        -45,
+        (60 * invertIfRed),
         () -> -driver.getRawAxis(translationAxis), 
         () -> -driver.getRawAxis(strafeAxis))
         );
@@ -77,10 +106,48 @@ public class RobotContainer {
         () -> -driver.getRawAxis(strafeAxis))
         );
         ampButton.onTrue(new AnglePID(s_Swerve, 
-        90,
+        (-90 * invertIfRed),
         () -> -driver.getRawAxis(translationAxis), 
         () -> -driver.getRawAxis(strafeAxis))
         );
+        awayButton.onTrue(new AnglePID(s_Swerve, 
+        0,
+        () -> -driver.getRawAxis(translationAxis), 
+        () -> -driver.getRawAxis(strafeAxis))
+        );
+        retractEverything.onTrue(new SequentialCommandGroup(
+                                                            flywheel.runOnce(flywheel::stopFlywheel),
+                                                            flywheel.runOnce(flywheel::stopIndex),
+                                                            wrist.runOnce(wrist::retract),
+                                                            new WaitUntilCommand(wrist::atHomePosition),
+                                                            new ParallelCommandGroup(intake.runOnce(intake::retract), elevator.runOnce(elevator::retract))));
+        
+        spinFlywheel.onTrue(new InstantCommand(() -> flywheel.spinFlywheel()));
+        shoot.onTrue(new Shoot(flywheel));
+        intakeNote.onTrue(new SequentialCommandGroup(
+                                                    intake.runOnce(intake::extend),
+                                                    flywheel.runOnce(flywheel::intake),
+                                                    new WaitUntilCommand(intake::atExtendedPosition), 
+                                                    new ParallelCommandGroup(wrist.runOnce(wrist::intakePosition), elevator.runOnce(elevator::intakePosition)),
+                                                    new WaitUntilCommand(wrist::atIntakePosition),
+                                                    new IntakeNote(intake, flywheel), 
+                                                    new ParallelCommandGroup(wrist.runOnce(wrist::retract), elevator.runOnce(elevator::retract)),
+                                                    new WaitUntilCommand(wrist::atHomePosition),
+                                                    intake.runOnce(intake::retract)
+                                                    ));
+        extendElevator.onTrue(new SequentialCommandGroup(
+                                                            elevator.runOnce(elevator::ampPosition),
+                                                            wrist.runOnce(wrist::ampPosition),
+                                                            flywheel.runOnce(flywheel::spinFlywheel)
+                                                            ));
+        retractElevator.onTrue(new SequentialCommandGroup(
+                                                            wrist.runOnce(wrist::retract),
+                                                            new WaitUntilCommand(wrist::canRetract),
+                                                            new InstantCommand(() -> elevator.retract()),
+                                                            intake.runOnce(intake::retract),
+                                                            new WaitUntilCommand(elevator::atIntakePosition)
+
+                                                            ));
     }
 
     /**
