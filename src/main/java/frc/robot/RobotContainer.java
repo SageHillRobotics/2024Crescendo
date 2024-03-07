@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -44,7 +45,7 @@ public class RobotContainer {
     private final JoystickButton speakerButton = new JoystickButton(driver, 3);
     private final JoystickButton ampButton = new JoystickButton(driver, 4);
     private final JoystickButton awayButton = new JoystickButton(driver, 6);
-    private final Trigger retractShit = armController.y();
+    private final Trigger retractEverything = armController.y();
     private final Trigger spinFlywheel = armController.rightBumper();
     private final Trigger shoot = armController.rightTrigger();
     private final Trigger intakeNote = armController.x();
@@ -114,36 +115,39 @@ public class RobotContainer {
         () -> -driver.getRawAxis(translationAxis), 
         () -> -driver.getRawAxis(strafeAxis))
         );
-        retractShit.onTrue(new SequentialCommandGroup(
-                                                      flywheel.runOnce(flywheel::stopFlywheel),
-                                                      flywheel.runOnce(flywheel::stopIndex),
-                                                      wrist.runOnce(wrist::retract),
-                                                      new WaitUntilCommand(wrist::atHomePosition)));
-                                                      //intake.runOnce(intake::retract)));
+        retractEverything.onTrue(new SequentialCommandGroup(
+                                                            flywheel.runOnce(flywheel::stopFlywheel),
+                                                            flywheel.runOnce(flywheel::stopIndex),
+                                                            wrist.runOnce(wrist::retract),
+                                                            new WaitUntilCommand(wrist::atHomePosition),
+                                                            new ParallelCommandGroup(intake.runOnce(intake::retract), elevator.runOnce(elevator::retract))));
         
         spinFlywheel.onTrue(new InstantCommand(() -> flywheel.spinFlywheel()));
         shoot.onTrue(new Shoot(flywheel));
         intakeNote.onTrue(new SequentialCommandGroup(
-                                            //intake.runOnce(intake::extend),
-                                            flywheel.runOnce(flywheel::intake),
-                                            new WaitUntilCommand(intake::atExtendedPosition), 
-                                            wrist.runOnce(wrist::intakePosition), 
-                                            new WaitUntilCommand(wrist::atIntakePosition),
-                                            new IntakeNote(intake, flywheel), 
-                                            wrist.runOnce(wrist::retract),
-                                            new WaitUntilCommand(wrist::atHomePosition)
-                                            //intake.runOnce(intake::retract)
-                                            ));
+                                                    intake.runOnce(intake::extend),
+                                                    flywheel.runOnce(flywheel::intake),
+                                                    new WaitUntilCommand(intake::atExtendedPosition), 
+                                                    new ParallelCommandGroup(wrist.runOnce(wrist::intakePosition), elevator.runOnce(elevator::intakePosition)),
+                                                    new WaitUntilCommand(wrist::atIntakePosition),
+                                                    new IntakeNote(intake, flywheel), 
+                                                    new ParallelCommandGroup(wrist.runOnce(wrist::retract), elevator.runOnce(elevator::retract)),
+                                                    new WaitUntilCommand(wrist::atHomePosition),
+                                                    intake.runOnce(intake::retract)
+                                                    ));
         extendElevator.onTrue(new SequentialCommandGroup(
-                            new InstantCommand(() -> elevator.ampPosition())
-                            //wrist.runOnce(wrist::ampPosition)
-                            ));
+                                                            elevator.runOnce(elevator::ampPosition),
+                                                            wrist.runOnce(wrist::ampPosition),
+                                                            flywheel.runOnce(flywheel::spinFlywheel)
+                                                            ));
         retractElevator.onTrue(new SequentialCommandGroup(
-                                //wrist.runOnce(wrist::retract),
-                                //new WaitUntilCommand(wrist::atHomePosition),
-                                new InstantCommand(() -> elevator.retract())
-                                
-                                ));
+                                                            wrist.runOnce(wrist::retract),
+                                                            new WaitUntilCommand(wrist::canRetract),
+                                                            new InstantCommand(() -> elevator.retract()),
+                                                            intake.runOnce(intake::retract),
+                                                            new WaitUntilCommand(elevator::atIntakePosition)
+
+                                                            ));
     }
 
     /**

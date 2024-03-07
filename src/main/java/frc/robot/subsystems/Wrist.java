@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.SparkPIDController;
@@ -10,17 +11,30 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist extends SubsystemBase{
-    private static final double HOME_POSITION = 50.5;
-    private static final double INTAKE_POSITION = 80.26;
-    private static final double AMP_POSITION = 77;
+    private static final double HOME_POSITION = 49.5;
+    private static final double INTAKE_POSITION = 18.36;
+    private static final double AMP_POSITION = 21;
+    private static final double PARALLEL_POSITION = 25;
     private CANSparkMax angleMotor;
     private SparkPIDController wristPID;
+    private RelativeEncoder wristIntegratedEncoder;
     private SparkAbsoluteEncoder wristEncoder;
     public Wrist(){
         angleMotor = new CANSparkMax(41, MotorType.kBrushless);
+        angleMotor.restoreFactoryDefaults();
+        
         wristPID = angleMotor.getPIDController();
-        wristPID.setP(1);
+
         wristEncoder = angleMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
+        wristIntegratedEncoder = angleMotor.getEncoder();
+        wristEncoder.setPositionConversionFactor(100);
+
+        wristPID.setFeedbackDevice(wristEncoder);
+        wristPID.setP(.25);
+        wristPID.setI(0);
+        wristPID.setD(.75);
+
+        angleMotor.burnFlash();
     }
 
     public void intakePosition(){
@@ -39,11 +53,15 @@ public class Wrist extends SubsystemBase{
     }
 
     public boolean atHomePosition(){
-        return Math.abs(wristEncoder.getPosition() - HOME_POSITION) < 15;
+        return Math.abs(wristEncoder.getPosition() - HOME_POSITION) < 2.5;
     }
 
+    public boolean canRetract(){
+        return Math.abs(wristEncoder.getPosition() - PARALLEL_POSITION) < 4;
+    }
     @Override
     public void periodic(){
         SmartDashboard.putNumber("wrist encoder position", wristEncoder.getPosition());
+        SmartDashboard.putNumber("wrist integrated encoder position", wristIntegratedEncoder.getPosition());
     }
 }

@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase{
     private static final  double AMP_ENCODER_VALUE = 2.34;
-    private static final double INTAKE_ENCODER_VALUE = 1.0;
+    private static final double INTAKE_ENCODER_VALUE = 1.2;
     private final CANSparkMax leader;
     private final CANSparkMax topLeft;
     private final CANSparkMax bottomLeft;
@@ -54,10 +54,10 @@ public class Elevator extends SubsystemBase{
         pidController = leader.getPIDController();
         pidController.setFeedbackDevice(throughBoreEncoder);
         
-        pidController.setP(0.2);
+        pidController.setP(0.17);
         pidController.setI(0);
-        pidController.setD(.1);
-        pidController.setFF(.055);
+        pidController.setD(.15);
+        pidController.setFF(.06);
         pidController.setOutputRange(-1, 1);
 
         leader.burnFlash();
@@ -76,6 +76,9 @@ public class Elevator extends SubsystemBase{
     }
     public void retract(){
         pidController.setReference(0.2, ControlType.kPosition);
+    }
+    public boolean atIntakePosition(){
+        return Math.abs(throughBoreEncoder.getPosition() - AMP_ENCODER_VALUE) < .1;
     }
 
     @Override
