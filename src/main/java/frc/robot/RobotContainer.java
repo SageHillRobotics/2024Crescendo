@@ -59,6 +59,7 @@ public class RobotContainer {
     public final Elevator elevator = new Elevator();
     public final Flywheel flywheel = new Flywheel();
     public final Wrist wrist = new Wrist();
+    public final LEDs leds = new LEDs();
     
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -74,7 +75,7 @@ public class RobotContainer {
         );
         //intake.setDefaultCommand(new RetractIntake(intake));
         //wrist.setDefaultCommand(new RetractWrist(wrist));
-        
+        leds.setDefaultCommand(new LEDCommand(leds, elevator));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -91,8 +92,10 @@ public class RobotContainer {
         /* Driver Buttons */
         Optional<Alliance> ally = DriverStation.getAlliance();
         double invertIfRed = -1.0;
-        if (ally.get() == Alliance.Red) {
-            invertIfRed = 1.0;
+        if (ally.isPresent()) {
+            if (ally.get() == Alliance.Red){
+                invertIfRed = 1.0;
+            }
         }
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroGyro()));
         sourceButton.onTrue(new AnglePID(s_Swerve, 

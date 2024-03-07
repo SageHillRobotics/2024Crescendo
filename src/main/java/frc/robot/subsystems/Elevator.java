@@ -80,6 +80,9 @@ public class Elevator extends SubsystemBase{
     public boolean atIntakePosition(){
         return Math.abs(throughBoreEncoder.getPosition() - AMP_ENCODER_VALUE) < .1;
     }
+    public double getPosition(){
+        return throughBoreEncoder.getPosition();
+    }
 
     @Override
     public void periodic(){

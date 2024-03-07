@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase{
         retractionPID.setReference(EXTENDED_ENCODER_VALUE, ControlType.kPosition);
     }
     public void spinIntakeMotor(){
-        intakeCollectionMotor.set(-.55);
+        intakeCollectionMotor.set(-.45);
     }
     public void stopIntakeMotor(){
         intakeCollectionMotor.stopMotor();
