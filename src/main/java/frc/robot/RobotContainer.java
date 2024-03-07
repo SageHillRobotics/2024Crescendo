@@ -135,12 +135,12 @@ public class RobotContainer {
                                             //intake.runOnce(intake::retract)
                                             ));
         extendElevator.onTrue(new SequentialCommandGroup(
-                            new InstantCommand(() -> elevator.ampPosition()),
-                            wrist.runOnce(wrist::ampPosition)
+                            new InstantCommand(() -> elevator.ampPosition())
+                            //wrist.runOnce(wrist::ampPosition)
                             ));
         retractElevator.onTrue(new SequentialCommandGroup(
-                                wrist.runOnce(wrist::retract),
-                                new WaitUntilCommand(wrist::atHomePosition),
+                                //wrist.runOnce(wrist::retract),
+                                //new WaitUntilCommand(wrist::atHomePosition),
                                 new InstantCommand(() -> elevator.retract())
                                 
                                 ));

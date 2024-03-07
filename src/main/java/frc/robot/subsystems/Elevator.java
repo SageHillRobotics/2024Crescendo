@@ -87,11 +87,6 @@ public class Elevator extends SubsystemBase{
         if (!limitSwitch.get()){
             leaderIntegratedEncoder.setPosition(0);
             throughBoreEncoder.setPosition(0);
-            leader.stopMotor();
-            topLeft.stopMotor();
-            bottomRight.stopMotor();
-            bottomLeft.stopMotor();
-
         }
         
     }
