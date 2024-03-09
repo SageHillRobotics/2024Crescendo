@@ -1,0 +1,112 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 0.7084317207336426,
+      "y": 6.736536979675293
+    },
+    "rotation": -119.0546206288385
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "spinFlywheel"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2NoteTop.1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intake"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "spinFlywheel"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 2.0
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "2NoteTop.2"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2NoteTop.3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}

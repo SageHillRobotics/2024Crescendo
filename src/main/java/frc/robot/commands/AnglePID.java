@@ -10,7 +10,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class AnglePID extends Command {
@@ -27,12 +26,12 @@ public class AnglePID extends Command {
         this.targetAngle = targetAngle;
         this.translationSup = translationSup;
         this.strafeSup = strafeSup;
-        angleController = new PIDController(.01, 0, 0);
+        angleController = new PIDController(.1, 0, 0);
     }
     @Override
     public void initialize(){
         angleController.enableContinuousInput(-180, 180);
-        angleController.setTolerance(2);
+        angleController.setTolerance(0.5);
     }
     @Override
     public void execute(){
@@ -51,10 +50,6 @@ public class AnglePID extends Command {
         output,
         true,
         true);
-        SmartDashboard.putNumber("currPose", currRotation);
-        SmartDashboard.putNumber("goal", angleController.getSetpoint());
-        SmartDashboard.putNumber("output", output);
-        SmartDashboard.putNumber("error", angleController.getPositionError());
     }
 
 

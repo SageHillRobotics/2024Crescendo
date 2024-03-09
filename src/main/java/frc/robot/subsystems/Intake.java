@@ -29,7 +29,7 @@ public class Intake extends SubsystemBase{
         retractionPID.setReference(EXTENDED_ENCODER_VALUE, ControlType.kPosition);
     }
     public void spinIntakeMotor(){
-        intakeCollectionMotor.set(-.45);
+        intakeCollectionMotor.set(-.55);
     }
     public void stopIntakeMotor(){
         intakeCollectionMotor.stopMotor();
@@ -42,11 +42,11 @@ public class Intake extends SubsystemBase{
         return Math.abs(intakeRetractionMotor.getEncoder().getPosition()) < 5;
     }
     public void eject(){
-        intakeCollectionMotor.set(1);
+        intakeCollectionMotor.set(.4);
     }
 
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("intake encoder value", intakeRetractionMotor.getEncoder().getPosition());
+        SmartDashboard.putNumber("intake encoder value", intakeRetractionMotor.getEncoder().getPosition()); 
     }
 }

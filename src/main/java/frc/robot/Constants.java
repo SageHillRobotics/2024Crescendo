@@ -4,7 +4,9 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -25,15 +27,15 @@ public final class Constants {
     public static final double visionHeightInches = 0;
     public static final double targetHeightInches = 0;
     /* Drivetrain Constants */
-    public static final double trackWidth = Units.inchesToMeters(26);
-    public static final double wheelBase = Units.inchesToMeters(26);
+    public static final double trackWidth = Units.inchesToMeters(21);
+    public static final double wheelBase = Units.inchesToMeters(21);
     public static final double wheelDiameter = Units.inchesToMeters(4.0);
     public static final double wheelCircumference = wheelDiameter * Math.PI;
 
     public static final double openLoopRamp = 0.25;
     public static final double closedLoopRamp = 0.0;
 
-    public static final double driveGearRatio = (8.14 / 1.0); // Default Angle Ratio
+    public static final double driveGearRatio = (6.75 / 1.0); // Default Angle Ratio
     public static final double angleGearRatio = (((double)150/7) / 1.0); // L2 SDS MK4i Module
 
     public static final SwerveDriveKinematics swerveKinematics =
@@ -94,7 +96,7 @@ public final class Constants {
       public static final int driveMotorID = 1;
       public static final int angleMotorID = 11;
       public static final int canCoderID = 21;
-      public static final Rotation2d angleOffset = Rotation2d.fromDegrees(104.85);
+      public static final Rotation2d angleOffset = Rotation2d.fromDegrees(109.4);
       public static final SwerveModuleConstants constants =
           new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
     }
@@ -104,7 +106,7 @@ public final class Constants {
       public static final int driveMotorID = 2;
       public static final int angleMotorID = 12;
       public static final int canCoderID = 22;
-      public static final Rotation2d angleOffset = Rotation2d.fromDegrees(95.19);
+      public static final Rotation2d angleOffset = Rotation2d.fromDegrees(95.71);
       public static final SwerveModuleConstants constants =
           new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
     }
@@ -114,7 +116,7 @@ public final class Constants {
       public static final int driveMotorID = 3;
       public static final int angleMotorID = 13;
       public static final int canCoderID = 23;
-      public static final Rotation2d angleOffset = Rotation2d.fromDegrees(360-137.64);
+      public static final Rotation2d angleOffset = Rotation2d.fromDegrees(221.57);
       public static final SwerveModuleConstants constants =
           new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
     }
@@ -124,7 +126,7 @@ public final class Constants {
       public static final int driveMotorID = 4;
       public static final int angleMotorID = 14;
       public static final int canCoderID = 24;
-      public static final Rotation2d angleOffset = Rotation2d.fromDegrees(360-143.70);
+      public static final Rotation2d angleOffset = Rotation2d.fromDegrees(217.00);
       public static final SwerveModuleConstants constants =
           new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
     }
@@ -144,5 +146,12 @@ public final class Constants {
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
         new TrapezoidProfile.Constraints(
             kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
+  }
+  public static final class Vision {
+    public static final Translation3d camPosition = new Translation3d(Units.inchesToMeters(-11.75), 
+                                                                      Units.inchesToMeters(-3.25), 
+                                                                      Units.inchesToMeters(26));
+    public static final Rotation3d camRotation =  new Rotation3d(0, 0, Units.degreesToRadians(-12.5)); // TODO: change pitch value
+
   }
 }

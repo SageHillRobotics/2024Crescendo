@@ -2,8 +2,14 @@ package frc.robot;
 
 import java.util.Optional;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -11,12 +17,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.autos.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 
@@ -48,9 +52,12 @@ public class RobotContainer {
     private final Trigger retractEverything = armController.y();
     private final Trigger spinFlywheel = armController.rightBumper();
     private final Trigger shoot = armController.rightTrigger();
-    private final Trigger intakeNote = armController.x();
+    private final Trigger intakeNote = armController.povUp();
     private final Trigger retractElevator = armController.b();
     private final Trigger extendElevator = armController.a();
+    private final Trigger eject = armController.leftTrigger();
+    private final Trigger climb = armController.leftBumper();
+    private final Trigger floorIntake = armController.x();
     
 
     /* Subsystems */
@@ -60,9 +67,24 @@ public class RobotContainer {
     public final Flywheel flywheel = new Flywheel();
     public final Wrist wrist = new Wrist();
     public final LEDs leds = new LEDs();
+    private SendableChooser<Command> autoChooser;
     
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
+
+        
+        
+        NamedCommands.registerCommand("intake", new FloorIntake(elevator, intake, flywheel, wrist));
+        NamedCommands.registerCommand("spinFlywheel", new InstantCommand(() -> flywheel.spinFlywheel()));
+        NamedCommands.registerCommand("shoot", new Shoot(flywheel));
+
+        autoChooser = AutoBuilder.buildAutoChooser();
+
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+
+        
+
+
         s_Swerve.setDefaultCommand(
             new TeleopSwerve(
                 s_Swerve, 
@@ -127,30 +149,32 @@ public class RobotContainer {
         
         spinFlywheel.onTrue(new InstantCommand(() -> flywheel.spinFlywheel()));
         shoot.onTrue(new Shoot(flywheel));
+        //intakeNote.onTrue(new IntakeCommand(elevator, intake, flywheel, wrist));
         intakeNote.onTrue(new SequentialCommandGroup(
-                                                    intake.runOnce(intake::extend),
                                                     flywheel.runOnce(flywheel::intake),
-                                                    new WaitUntilCommand(intake::atExtendedPosition), 
-                                                    new ParallelCommandGroup(wrist.runOnce(wrist::intakePosition), elevator.runOnce(elevator::intakePosition)),
+                                                    new ParallelCommandGroup(wrist.runOnce(wrist::sourcePosition), elevator.runOnce(elevator::sourcePosition)),
                                                     new WaitUntilCommand(wrist::atIntakePosition),
-                                                    new IntakeNote(intake, flywheel), 
-                                                    new ParallelCommandGroup(wrist.runOnce(wrist::retract), elevator.runOnce(elevator::retract)),
-                                                    new WaitUntilCommand(wrist::atHomePosition),
-                                                    intake.runOnce(intake::retract)
-                                                    ));
+                                                    new SpinIntake(intake, flywheel), 
+                                                    new ParallelCommandGroup(wrist.runOnce(wrist::retract), elevator.runOnce(elevator::retract))
+
+        ));
         extendElevator.onTrue(new SequentialCommandGroup(
                                                             elevator.runOnce(elevator::ampPosition),
                                                             wrist.runOnce(wrist::ampPosition),
                                                             flywheel.runOnce(flywheel::spinFlywheel)
                                                             ));
         retractElevator.onTrue(new SequentialCommandGroup(
+                                                            flywheel.runOnce(flywheel::stopFlywheel),
+                                                            flywheel.runOnce(flywheel::stopIndex),
                                                             wrist.runOnce(wrist::retract),
                                                             new WaitUntilCommand(wrist::canRetract),
                                                             new InstantCommand(() -> elevator.retract()),
-                                                            intake.runOnce(intake::retract),
-                                                            new WaitUntilCommand(elevator::atIntakePosition)
+                                                            intake.runOnce(intake::retract)
 
                                                             ));
+        eject.onTrue(intake.runOnce(intake::eject));
+        climb.toggleOnTrue(new Climb(wrist, elevator));
+        floorIntake.onTrue(new FloorIntake(elevator, intake, flywheel, wrist));
     }
 
     /**
@@ -160,6 +184,7 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An ExampleCommand will run in autonomous
-        return new Auto(s_Swerve, "pathplanner/generatedJSON/New Path.wpilib.json");
+        return autoChooser.getSelected();
+
     }
 }

@@ -4,8 +4,9 @@ import frc.robot.Constants;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+
+import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -15,11 +16,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -28,10 +27,10 @@ import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 public class Swerve extends SubsystemBase {
-    public SwerveDriveOdometry swerveOdometry;
     public SwerveDrivePoseEstimator swervePoseEstimator;
     public SwerveModule[] mSwerveMods;
     public Pigeon2 gyro;
+    public Vision vision;
 
     public Swerve() {
         gyro = new Pigeon2(Constants.Swerve.pigeonID);
@@ -51,17 +50,18 @@ public class Swerve extends SubsystemBase {
         Timer.delay(1.0);
         resetModulesToAbsolute();
 
-        swerveOdometry = new SwerveDriveOdometry(Constants.Swerve.swerveKinematics, getYaw(), getModulePositions());
-        
+        swervePoseEstimator = new SwerveDrivePoseEstimator(Constants.Swerve.swerveKinematics, getYaw(), getModulePositions(), new Pose2d());
+        vision = new Vision();
+
         AutoBuilder.configureHolonomic(
             this::getPose, // Robot pose supplier
             this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
             this::getCurrentSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             this::driveAuto, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                new PIDConstants(1.0, 0.0, 0.0), // Translation PID constants
-                new PIDConstants(1.0, 0.0, 0.0), // Rotation PID constants
-                4.5, // Max module speed, in m/s
+                new PIDConstants(0.1, 0.0, 0.0), // Translation PID constants
+                new PIDConstants(2.5, 0.0, 0.0), // Rotation PID constants
+                .1, // Max module speed, in m/s
                 0.66, // Drive base radius in meters. Distance from robot center to furthest module.
                 new ReplanningConfig() // Default path replanning config. See the API for the options here
             ),
@@ -123,11 +123,11 @@ public class Swerve extends SubsystemBase {
     }    
 
     public Pose2d getPose() {
-        return swerveOdometry.getPoseMeters();
+        return swervePoseEstimator.getEstimatedPosition();
     }
 
     public void resetOdometry(Pose2d pose) {
-        swerveOdometry.resetPosition(getYaw(), getModulePositions(), pose);
+        swervePoseEstimator.resetPosition(getYaw(), getModulePositions(), pose);
     }
 
     public SwerveModuleState[] getModuleStates(){
@@ -165,16 +165,20 @@ public class Swerve extends SubsystemBase {
 
     @Override
     public void periodic(){
-        swerveOdometry.update(getYaw(), getModulePositions());  
+        /* 
+        if (vision.getEstimatedGlobalPose().isPresent()){
+            EstimatedRobotPose pose = vision.getEstimatedGlobalPose().get();
+            swervePoseEstimator.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
+
+        }
+        */
+        swervePoseEstimator.update(getYaw(), getModulePositions());  
         //Optional<EstimatedRobotPose> globalPose = cam.getEstimatedGlobalPose(); 
         //swervePoseEstimator.addVisionMeasurement(globalPose.get().estimatedPose.toPose2d(), globalPose.get().timestampSeconds);
         for(SwerveModule mod : mSwerveMods){
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Cancoder", mod.getCanCoder().getDegrees());
-            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getPosition().angle.getDegrees());
-            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
         }
-        SmartDashboard.putNumber("Gyro reading", this.getYaw().getDegrees());
-        SmartDashboard.putNumber("Gyro absolute reading", this.getYaw().getDegrees() % 360);
-    }
+        SmartDashboard.putNumber("robot x pose", this.getPose().getX());
+    };
 
 }

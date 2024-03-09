@@ -1,0 +1,87 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.3321384191513062,
+      "y": 5.547595977783203
+    },
+    "rotation": 180.02333923010465
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "spinFlywheel"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2NoteMid.1"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "intake"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "spinFlywheel"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "2NoteMid.2"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2NoteMid.3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}

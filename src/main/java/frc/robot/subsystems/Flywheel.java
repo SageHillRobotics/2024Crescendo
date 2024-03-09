@@ -27,8 +27,8 @@ public class Flywheel extends SubsystemBase{
     }
 
     public void intake(){
-        leftFlywheel.set(-.25);
-        rightFlywheel.set(-.25);
+        leftFlywheel.set(-.55);
+        rightFlywheel.set(-.55);
         indexMotor.setIdleMode(IdleMode.kCoast);
     }
 

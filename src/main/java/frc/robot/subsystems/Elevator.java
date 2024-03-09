@@ -15,7 +15,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase{
     private static final  double AMP_ENCODER_VALUE = 2.34;
-    private static final double INTAKE_ENCODER_VALUE = 1.15;
+    private static final double INTAKE_ENCODER_VALUE = 1.1375;
+    private static final double SOURCE_ENCODER_VALUE = 1.16;
     private final CANSparkMax leader;
     private final CANSparkMax topLeft;
     private final CANSparkMax bottomLeft;
@@ -37,10 +38,10 @@ public class Elevator extends SubsystemBase{
         topLeft.restoreFactoryDefaults();
         bottomLeft.restoreFactoryDefaults();
 
-        leader.setIdleMode(IdleMode.kCoast);
-        bottomRight.setIdleMode(IdleMode.kCoast);
-        topLeft.setIdleMode(IdleMode.kCoast);
-        bottomLeft.setIdleMode(IdleMode.kCoast);
+        leader.setIdleMode(IdleMode.kBrake);
+        bottomRight.setIdleMode(IdleMode.kBrake);
+        topLeft.setIdleMode(IdleMode.kBrake);
+        bottomLeft.setIdleMode(IdleMode.kBrake);
 
         bottomRight.follow(leader);
         topLeft.follow(leader, true);
@@ -77,16 +78,27 @@ public class Elevator extends SubsystemBase{
     public void retract(){
         pidController.setReference(0.2, ControlType.kPosition);
     }
+    public void sourcePosition(){
+        pidController.setReference(SOURCE_ENCODER_VALUE, ControlType.kPosition);
+    }
     public boolean atIntakePosition(){
+        return Math.abs(throughBoreEncoder.getPosition() - INTAKE_ENCODER_VALUE) < .1;
+    }
+    public boolean atAmpPosition(){
         return Math.abs(throughBoreEncoder.getPosition() - AMP_ENCODER_VALUE) < .1;
     }
     public double getPosition(){
         return throughBoreEncoder.getPosition();
     }
+    public void setSpeed(double speed){
+        leader.set(speed);
+    }
+    public void stop(){
+        leader.stopMotor();
+    }
 
     @Override
     public void periodic(){
-        SmartDashboard.putNumber("leader integrated encoder position", leaderIntegratedEncoder.getPosition());
         SmartDashboard.putNumber("through bore encoder value", throughBoreEncoder.getPosition());
         SmartDashboard.putBoolean("limit switch", limitSwitch.get());
         

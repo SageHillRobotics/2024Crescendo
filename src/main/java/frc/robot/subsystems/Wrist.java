@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.SparkPIDController;
@@ -12,12 +11,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist extends SubsystemBase{
     private static final double HOME_POSITION = 49.5;
-    private static final double INTAKE_POSITION = 19;
+    private static final double INTAKE_POSITION = 19.24;
     private static final double AMP_POSITION = 21;
     private static final double PARALLEL_POSITION = 25;
+    private static final double CLIMB_POSITION = 40.61;
+    private static final double SOURCE_POSITION = 45.585;
     private CANSparkMax angleMotor;
     private SparkPIDController wristPID;
-    private RelativeEncoder wristIntegratedEncoder;
     private SparkAbsoluteEncoder wristEncoder;
     public Wrist(){
         angleMotor = new CANSparkMax(41, MotorType.kBrushless);
@@ -26,7 +26,6 @@ public class Wrist extends SubsystemBase{
         wristPID = angleMotor.getPIDController();
 
         wristEncoder = angleMotor.getAbsoluteEncoder(SparkAbsoluteEncoder.Type.kDutyCycle);
-        wristIntegratedEncoder = angleMotor.getEncoder();
         wristEncoder.setPositionConversionFactor(100);
 
         wristPID.setFeedbackDevice(wristEncoder);
@@ -47,6 +46,12 @@ public class Wrist extends SubsystemBase{
     public void retract(){
         wristPID.setReference(HOME_POSITION, ControlType.kPosition);
     }
+    public void climbPosition(){
+        wristPID.setReference(CLIMB_POSITION, ControlType.kPosition);
+    }
+    public void sourcePosition(){
+        wristPID.setReference(SOURCE_POSITION, ControlType.kPosition);
+    }
     
     public boolean atIntakePosition(){
         return Math.abs(wristEncoder.getPosition() - INTAKE_POSITION) < 1.5;
@@ -59,9 +64,11 @@ public class Wrist extends SubsystemBase{
     public boolean canRetract(){
         return (Math.abs(wristEncoder.getPosition() - PARALLEL_POSITION) < 4) || wristEncoder.getPosition() > 25;
     }
+    public boolean atClimbPosition(){
+        return Math.abs(wristEncoder.getPosition() - CLIMB_POSITION) < 1.5;
+    }
     @Override
     public void periodic(){
         SmartDashboard.putNumber("wrist encoder position", wristEncoder.getPosition());
-        SmartDashboard.putNumber("wrist integrated encoder position", wristIntegratedEncoder.getPosition());
     }
 }
