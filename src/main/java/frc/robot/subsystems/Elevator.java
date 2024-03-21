@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
 public class Elevator extends SubsystemBase{
-    private static final  double AMP_ENCODER_VALUE = 2.34;
-    private static final double INTAKE_ENCODER_VALUE = 1.1375;
+    private static final  double AMP_ENCODER_VALUE = 2.3;
+    private static final double INTAKE_ENCODER_VALUE = 1.2;
     private static final double SOURCE_ENCODER_VALUE = 1.16;
     private final CANSparkMax leader;
     private final CANSparkMax topLeft;

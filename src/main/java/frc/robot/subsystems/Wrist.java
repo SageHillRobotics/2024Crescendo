@@ -10,7 +10,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist extends SubsystemBase{
-    private static final double HOME_POSITION = 49.5;
+    private static final double HOME_POSITION = 50.95;
+    private static final double AUTO_POSITION = 50.95;
     private static final double INTAKE_POSITION = 19.24;
     private static final double AMP_POSITION = 21;
     private static final double PARALLEL_POSITION = 25;
@@ -51,6 +52,9 @@ public class Wrist extends SubsystemBase{
     }
     public void sourcePosition(){
         wristPID.setReference(SOURCE_POSITION, ControlType.kPosition);
+    }
+    public void autoPosition(){
+        wristPID.setReference(AUTO_POSITION, ControlType.kPosition);
     }
     
     public boolean atIntakePosition(){

@@ -2,15 +2,21 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 2,
-      "y": 2
+      "x": 0.5914867520332336,
+      "y": 4.3586554527282715
     },
-    "rotation": 0
+    "rotation": 122.12500652829955
   },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "wristShoot"
+          }
+        },
         {
           "type": "named",
           "data": {
@@ -28,10 +34,16 @@
           "data": {
             "name": "shoot"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Taxi"
+          }
         }
       ]
     }
   },
   "folder": null,
-  "choreoAuto": false
+  "choreoAuto": true
 }
