@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3321384191513062,
-      "y": 5.547595977783203
+      "x": 1.3321385383605957,
+      "y": 5.567087173461914
     },
     "rotation": 180.02333923010465
   },
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4NoteMid.1"
+            "pathName": "4Note.1"
           }
         },
         {
@@ -43,7 +43,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "4NoteMid.2"
+                  "pathName": "4Note.2"
                 }
               }
             ]
@@ -52,7 +52,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4NoteMid.3"
+            "pathName": "4Note.3"
           }
         },
         {
@@ -64,7 +64,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4NoteMid.4"
+            "pathName": "4Note.4"
           }
         },
         {
@@ -93,7 +93,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "4NoteMid.5"
+                  "pathName": "4Note.5"
                 }
               }
             ]
@@ -102,7 +102,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4NoteMid.6"
+            "pathName": "4Note.6"
           }
         },
         {
@@ -114,7 +114,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4NoteMid.7"
+            "pathName": "4Note.7"
           }
         },
         {
@@ -143,7 +143,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "4NoteMid.8"
+                  "pathName": "4Note.8"
                 }
               }
             ]
@@ -152,7 +152,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4NoteMid.9"
+            "pathName": "4Note.9"
           }
         },
         {

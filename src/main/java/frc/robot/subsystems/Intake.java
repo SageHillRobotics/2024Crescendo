@@ -11,7 +11,6 @@ public class Intake extends SubsystemBase{
     private final CANSparkMax intakeCollectionMotor;
     private final CANSparkMax intakeRetractionMotor;
     private final SparkPIDController retractionPID;
-    public double kP, kI, kD;
 
     public Intake(){
         intakeCollectionMotor = new CANSparkMax(49, MotorType.kBrushless);
@@ -43,6 +42,9 @@ public class Intake extends SubsystemBase{
     }
     public void eject(){
         intakeCollectionMotor.set(.4);
+    }
+    public double getCurrent(){
+        return intakeCollectionMotor.getOutputCurrent();
     }
 
     @Override

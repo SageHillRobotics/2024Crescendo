@@ -2,8 +2,8 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3321384191513062,
-      "y": 5.547595977783203
+      "x": 1.3321385383605957,
+      "y": 5.567087173461914
     },
     "rotation": 180.02333923010465
   },
@@ -59,9 +59,22 @@
                 }
               },
               {
-                "type": "path",
+                "type": "sequential",
                 "data": {
-                  "pathName": "2NoteMid.2"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "2NoteMid.2"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -71,6 +84,12 @@
           "type": "path",
           "data": {
             "pathName": "2NoteMid.3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.5
           }
         },
         {

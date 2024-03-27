@@ -17,22 +17,21 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants.AutonConstants;
 import java.io.File;
-import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
-import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -46,10 +45,12 @@ public class SwerveSubsystem extends SubsystemBase
    * Swerve drive object.
    */
   private final SwerveDrive swerveDrive;
+  private final Vision vision;
   /**
    * Maximum speed of the robot in meters per second, used to limit acceleration.
    */
-  public        double      maximumSpeed = 3.7;
+  public        double      maximumSpeed = 4.3;
+  private StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault().getStructTopic("pose", Pose2d.struct).publish();
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -58,21 +59,7 @@ public class SwerveSubsystem extends SubsystemBase
    */
   public SwerveSubsystem(File directory)
   {
-    // Angle conversion factor is 360 / (GEAR RATIO * ENCODER RESOLUTION)
-    //  In this case the gear ratio is 12.8 motor revolutions per wheel rotation.
-    //  The encoder resolution per motor revolution is 1 per motor revolution.
-    double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation((double)150/7.0);
-    // Motor conversion factor is (PI * WHEEL DIAMETER IN METERS) / (GEAR RATIO * ENCODER RESOLUTION).
-    //  In this case the wheel diameter is 4 inches, which must be converted to meters to get meters/second.
-    //  The gear ratio is 6.75 motor revolutions per wheel rotation.
-    //  The encoder resolution per motor revolution is 1 per motor revolution.
-    double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 6.75);
-    System.out.println("\"conversionFactor\": {");
-    System.out.println("\t\"angle\": " + angleConversionFactor + ",");
-    System.out.println("\t\"drive\": " + driveConversionFactor);
-    System.out.println("}");
     
-
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being created.
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     try
@@ -88,6 +75,8 @@ public class SwerveSubsystem extends SubsystemBase
     swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
     swerveDrive.setCosineCompensator(!SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
     setupPathPlanner();
+
+    vision = new Vision();
   }
 
   /**
@@ -99,11 +88,21 @@ public class SwerveSubsystem extends SubsystemBase
   public SwerveSubsystem(SwerveDriveConfiguration driveCfg, SwerveControllerConfiguration controllerCfg)
   {
     swerveDrive = new SwerveDrive(driveCfg, controllerCfg, maximumSpeed);
+    vision = new Vision();
   }
 
   /**
    * Setup AutoBuilder for PathPlanner.
    */
+
+  public double getMaximumAngularVelocity(){
+    return swerveDrive.getMaximumAngularVelocity();
+  }
+
+  public double getMaximumVelocity(){
+    return swerveDrive.getMaximumVelocity();
+  }
+
   public void setupPathPlanner()
   {
     AutoBuilder.configureHolonomic(
@@ -116,7 +115,7 @@ public class SwerveSubsystem extends SubsystemBase
                                          // Translation PID constants
                                          AutonConstants.ANGLE_PID,
                                          // Rotation PID constants
-                                         4.5,
+                                         4.3,
                                          // Max module speed, in m/s
                                          swerveDrive.swerveDriveConfiguration.getDriveBaseRadiusMeters(),
                                          // Drive base radius in meters. Distance from robot center to furthest module.
@@ -176,8 +175,8 @@ public class SwerveSubsystem extends SubsystemBase
   {
 // Create the constraints to use while pathfinding
     PathConstraints constraints = new PathConstraints(
-        swerveDrive.getMaximumVelocity(), 4.0,
-        swerveDrive.getMaximumAngularVelocity(), Units.degreesToRadians(720));
+        1.0, 4.0,
+        1.0, Units.degreesToRadians(720));
 
 // Since AutoBuilder is configured, we can use it to build pathfinding commands
     return AutoBuilder.pathfindToPose(
@@ -281,27 +280,6 @@ public class SwerveSubsystem extends SubsystemBase
                         false);
     });
   }
-  public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, boolean cw, boolean ccw){
-    double rotationVal;
-    if (cw == true && ccw == false){
-      rotationVal = -1;
-    }
-    else if (ccw == true && cw  == false){
-      rotationVal = 1;
-    }
-    else{
-      rotationVal = 0;
-    }
-    SmartDashboard.putNumber("rotation val", rotationVal);
-    return run(() -> {
-        // Make the robot move
-        swerveDrive.drive(new Translation2d(Math.pow(translationX.getAsDouble(), 3) * swerveDrive.getMaximumVelocity(),
-                                            Math.pow(translationY.getAsDouble(), 3) * swerveDrive.getMaximumVelocity()),
-                          rotationVal * swerveDrive.getMaximumAngularVelocity(),
-                          true,
-                          false);
-      });
-  }
 
   /**
    * The primary method for controlling the drivebase.  Takes a {@link Translation2d} and a rotation rate, and
@@ -348,7 +326,11 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
-
+    var pose = vision.getEstimatedGlobalPose();
+    if (pose.isPresent()){
+      swerveDrive.addVisionMeasurement(pose.get().estimatedPose.toPose2d(), pose.get().timestampSeconds);
+    }
+    publisher.set(swerveDrive.getPose());
   }
 
   @Override

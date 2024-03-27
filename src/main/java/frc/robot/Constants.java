@@ -29,8 +29,8 @@ public final class Constants
   public static final class AutonConstants
   {
 
-    public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
-    public static final PIDConstants ANGLE_PID   = new PIDConstants(1, 0, 0.01);
+    public static final PIDConstants TRANSLATION_PID = new PIDConstants(4.5, 0, 0);
+    public static final PIDConstants ANGLE_PID   = new PIDConstants(5, 0, 0);
   }
 
   public static final class DrivebaseConstants
@@ -50,10 +50,10 @@ public final class Constants
     public static final double TURN_CONSTANT    = 6;
   }
       public static final class Vision {
-      public static final Translation3d CAM_TRANSLATION = new Translation3d(Units.inchesToMeters(-11.75), 
-                                                                        Units.inchesToMeters(3.25), 
-                                                                        Units.inchesToMeters(26));
-      public static final Rotation3d CAM_ROTATION =  new Rotation3d(0, 0, Units.degreesToRadians(-12.5));
+      public static final Translation3d CAM_TRANSLATION = new Translation3d(Units.inchesToMeters(-3.0), 
+                                                                        Units.inchesToMeters(12.0), 
+                                                                        Units.inchesToMeters(26.75));
+      public static final Rotation3d CAM_ROTATION =  new Rotation3d(0, Units.degreesToRadians(-19.18), Units.degreesToRadians(-17.38));
 
   }
 }

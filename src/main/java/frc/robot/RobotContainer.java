@@ -4,16 +4,17 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -21,19 +22,23 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Climb;
+import frc.robot.commands.Aim;
+import frc.robot.commands.ClimbStageOne;
+import frc.robot.commands.ClimbStageThree;
+import frc.robot.commands.ClimbStageTwo;
 import frc.robot.commands.FloorIntake;
 import frc.robot.commands.LEDCommand;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.SpinIntake;
+import frc.robot.commands.TeleopSwerve;
+import frc.robot.commands.UnwindWinch;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Wrist;
 
 import java.io.File;
@@ -57,32 +62,36 @@ public class RobotContainer
     public final Flywheel flywheel = new Flywheel();
     public final Wrist wrist = new Wrist();
     public final LEDs leds = new LEDs();
-    private SendableChooser<Command> autoChooser;
-    
+    public final Vision vision = new Vision();
+    private SendableChooser<Command> autoChooser;    
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandJoystick driver = new CommandJoystick(0);
     private final CommandXboxController armController = new CommandXboxController(1);
 
-
-    private final Trigger cwButton = driver.button(7);
-    private final Trigger ccwButton = driver.button(6);
+    private final int translationAxis = 1;
+    private final int strafeAxis = 0;
+    private final Trigger cwButton = driver.button(6);
+    private final Trigger ccwButton = driver.button(5);
 
 
     final Trigger shoot = driver.button(1);
     final Trigger zeroGyro = driver.button(2);
     final Trigger robotCentric = driver.button(12);
-    final Trigger sourceButton = driver.button(5);
     final Trigger speakerButton = driver.button(3);
     final Trigger ampButton = driver.button(4);
-    final Trigger awayButton = driver.button(6);
 
     private final Trigger retractEverything = driver.button(10);
     private final Trigger intakeNote = armController.povUp();
-    private final Trigger retractElevator = armController.b();
-    private final Trigger extendElevator = armController.a();
-    private final Trigger eject = armController.leftTrigger();
-    private final Trigger climb = armController.leftBumper();
+    private final Trigger retractElevator = driver.button(11);
+    private final Trigger extendElevator = driver.button(12);
+    private final Trigger eject = driver.povLeft();
+
+    private final Trigger climbOne = driver.button(8);
+    private final Trigger climbTwo = driver.button(7);
+    private final Trigger climbThree = driver.povDown();
+    private final Trigger unwindWinch = driver.povUp();
+
     private final Trigger floorIntake = driver.button(9);
 
 
@@ -91,6 +100,8 @@ public class RobotContainer
    */
   public RobotContainer()
   {
+
+
     NamedCommands.registerCommand("intake", new FloorIntake(elevator, intake, flywheel, wrist));
     NamedCommands.registerCommand("spinFlywheel", new InstantCommand(() -> flywheel.spinFlywheel()));
     NamedCommands.registerCommand("shoot", new Shoot(flywheel));
@@ -120,13 +131,17 @@ public class RobotContainer
     // controls are front-left positive
     // left stick controls translation
     // right stick controls the angular velocity of the robot
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-driver.getRawAxis(1), OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(-driver.getRawAxis(0), OperatorConstants.LEFT_X_DEADBAND),
-        () -> MathUtil.applyDeadband(-driver.getRawAxis(2), 0.1));
+    drivebase.setDefaultCommand(
+      new TeleopSwerve(
+                drivebase, 
+                () -> -driver.getRawAxis(translationAxis), 
+                () -> -driver.getRawAxis(strafeAxis), 
+                () -> cwButton.getAsBoolean(),
+                () -> ccwButton.getAsBoolean()
+            )
 
-    drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
-    leds.setDefaultCommand(new LEDCommand(leds, elevator));
+    );
+    leds.setDefaultCommand(new LEDCommand(leds, elevator, intake));
     //wrist.setDefaultCommand(wrist.runOnce(wrist::retract));
     }
 
@@ -147,7 +162,13 @@ public class RobotContainer
                                     new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
                                 ));
     // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-    shoot.onTrue(new SequentialCommandGroup(flywheel.runOnce(flywheel::spinFlywheel), new WaitCommand(1), new Shoot(flywheel)));
+    speakerButton.onTrue(new ConditionalCommand(new Shoot(flywheel), 
+                        new SequentialCommandGroup(
+                        new ParallelCommandGroup(new Aim(drivebase, vision), 
+                        new SequentialCommandGroup(flywheel.runOnce(flywheel::spinFlywheel), 
+                        new WaitCommand(1))), 
+                        new Shoot(flywheel)), () -> elevator.atAmpPosition()));
+    
     retractEverything.onTrue(new SequentialCommandGroup(
                                                         flywheel.runOnce(flywheel::stopFlywheel),
                                                         flywheel.runOnce(flywheel::stopIndex),
@@ -180,6 +201,14 @@ public class RobotContainer
                                                         ));
     eject.onTrue(intake.runOnce(intake::eject));
     floorIntake.onTrue(new FloorIntake(elevator, intake, flywheel, wrist));
+    climbOne.onTrue(new SequentialCommandGroup(new ClimbStageOne(wrist, elevator), new WaitUntilCommand(() -> climbTwo.getAsBoolean()), new ClimbStageTwo(wrist, elevator)));
+    climbThree.onTrue(new ConditionalCommand(new ClimbStageThree(wrist, elevator), new InstantCommand(), () -> elevator.getPosition() > 0.5));
+    unwindWinch.toggleOnTrue(new UnwindWinch(elevator));
+    shoot.onTrue(new ConditionalCommand(new Shoot(flywheel), new SequentialCommandGroup(
+                        flywheel.runOnce(flywheel::spinFlywheel), 
+                        new WaitCommand(1), 
+                        new Shoot(flywheel)), () -> elevator.atAmpPosition()));
+    ampButton.onTrue(new ConditionalCommand(drivebase.driveToPose(new Pose2d(14.6, 7.5, new Rotation2d(1.521))), drivebase.driveToPose(new Pose2d(14.6, 7.5, new Rotation2d(1.521))), () -> DriverStation.getAlliance().get() == Alliance.Blue));
     }
 
     /**

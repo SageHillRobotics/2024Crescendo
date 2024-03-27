@@ -19,7 +19,7 @@ public class SpinIntake extends Command{
     }
     @Override
     public boolean isFinished(){
-         return ((flywheel.getCurrent() > 30));
+         return ((flywheel.getCurrent() > 25));
     }
     @Override
     public void end(boolean interrupted){

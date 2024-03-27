@@ -10,12 +10,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wrist extends SubsystemBase{
-    private static final double HOME_POSITION = 50.95;
-    private static final double AUTO_POSITION = 50.95;
+    private static final double HOME_POSITION = 50.5;
+    private static final double AUTO_POSITION = 50.5;
+    private static final double TRAP_POSITION = 50;
     private static final double INTAKE_POSITION = 19.24;
     private static final double AMP_POSITION = 21;
     private static final double PARALLEL_POSITION = 25;
-    private static final double CLIMB_POSITION = 40.61;
+    private static final double CLIMB_POSITION = 42;
     private static final double SOURCE_POSITION = 45.585;
     private CANSparkMax angleMotor;
     private SparkPIDController wristPID;
@@ -32,6 +33,9 @@ public class Wrist extends SubsystemBase{
         wristPID.setFeedbackDevice(wristEncoder);
         wristPID.setP(.2);
         wristPID.setI(0);
+        wristPID.setD(.2);
+
+        wristPID.setP(.05, 1);
         wristPID.setD(.2);
 
         angleMotor.burnFlash();
@@ -56,7 +60,9 @@ public class Wrist extends SubsystemBase{
     public void autoPosition(){
         wristPID.setReference(AUTO_POSITION, ControlType.kPosition);
     }
-    
+    public void trapPosition(){
+        wristPID.setReference(TRAP_POSITION, ControlType.kPosition, 1);
+    }
     public boolean atIntakePosition(){
         return Math.abs(wristEncoder.getPosition() - INTAKE_POSITION) < 1.5;
     }
