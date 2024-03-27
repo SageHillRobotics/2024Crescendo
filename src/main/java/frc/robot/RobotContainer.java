@@ -208,7 +208,7 @@ public class RobotContainer
                         flywheel.runOnce(flywheel::spinFlywheel), 
                         new WaitCommand(1), 
                         new Shoot(flywheel)), () -> elevator.atAmpPosition()));
-    ampButton.onTrue(new ConditionalCommand(drivebase.driveToPose(new Pose2d(14.6, 7.5, new Rotation2d(1.521))), drivebase.driveToPose(new Pose2d(14.6, 7.5, new Rotation2d(1.521))), () -> DriverStation.getAlliance().get() == Alliance.Blue));
+    ampButton.toggleOnTrue(new ConditionalCommand(drivebase.driveToPose(new Pose2d(14.6, 7.6, new Rotation2d(1.521))), drivebase.driveToPose(new Pose2d(14.6, 7.5, new Rotation2d(1.521))), () -> DriverStation.getAlliance().get() == Alliance.Blue));
     }
 
     /**
