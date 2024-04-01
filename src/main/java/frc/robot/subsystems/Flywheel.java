@@ -26,8 +26,8 @@ public class Flywheel extends SubsystemBase{
 
     }
     public void ampSpeed(){
-        leftFlywheel.set(.40);
-        rightFlywheel.set(.40);
+        leftFlywheel.set(1);
+        rightFlywheel.set(1);
     }
 
     public void intake(){

@@ -113,10 +113,10 @@ public class Elevator extends SubsystemBase{
         bottomRight.setIdleMode(IdleMode.kCoast);
         topLeft.setIdleMode(IdleMode.kCoast);
         bottomLeft.setIdleMode(IdleMode.kCoast);
-        winch.set(-.50);
+        winch.set(.50);
     }
     public void unwindWinch(){
-        winch.set(.25);
+        winch.set(-.25);
     }
     public boolean atWinchPosition(){
         return throughBoreEncoder.getPosition() <= FINAL_CLIMB_POSITION;

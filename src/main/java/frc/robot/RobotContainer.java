@@ -1,3 +1,4 @@
+
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
@@ -28,8 +29,10 @@ import frc.robot.commands.ClimbStageOne;
 import frc.robot.commands.ClimbStageThree;
 import frc.robot.commands.ClimbStageTwo;
 import frc.robot.commands.FloorIntake;
+import frc.robot.commands.FloorIntakeAuto;
 import frc.robot.commands.LEDCommand;
 import frc.robot.commands.Shoot;
+import frc.robot.commands.ShootAuto;
 import frc.robot.commands.SpinIntake;
 import frc.robot.commands.TeleopSwerve;
 import frc.robot.commands.UnwindWinch;
@@ -78,7 +81,7 @@ public class RobotContainer
     final Trigger shoot = driver.button(1);
     final Trigger zeroGyro = driver.button(2);
     final Trigger robotCentric = driver.button(12);
-    final Trigger speakerButton = driver.button(3);
+    final Trigger spinFlywheel = driver.button(3);
     final Trigger ampButton = driver.button(4);
 
     private final Trigger retractEverything = driver.button(10);
@@ -102,9 +105,9 @@ public class RobotContainer
   {
 
 
-    NamedCommands.registerCommand("intake", new FloorIntake(elevator, intake, flywheel, wrist));
+    NamedCommands.registerCommand("intake", new FloorIntakeAuto(elevator, intake, flywheel, wrist));
     NamedCommands.registerCommand("spinFlywheel", new InstantCommand(() -> flywheel.spinFlywheel()));
-    NamedCommands.registerCommand("shoot", new Shoot(flywheel));
+    NamedCommands.registerCommand("shoot", new ShootAuto(flywheel));
 
     autoChooser = AutoBuilder.buildAutoChooser();
 
@@ -162,12 +165,7 @@ public class RobotContainer
                                     new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
                                 ));
     // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-    speakerButton.onTrue(new ConditionalCommand(new Shoot(flywheel), 
-                        new SequentialCommandGroup(
-                        new ParallelCommandGroup(new Aim(drivebase, vision), 
-                        new SequentialCommandGroup(flywheel.runOnce(flywheel::spinFlywheel), 
-                        new WaitCommand(1))), 
-                        new Shoot(flywheel)), () -> elevator.atAmpPosition()));
+    
     
     retractEverything.onTrue(new SequentialCommandGroup(
                                                         flywheel.runOnce(flywheel::stopFlywheel),
@@ -204,10 +202,10 @@ public class RobotContainer
     climbOne.onTrue(new SequentialCommandGroup(new ClimbStageOne(wrist, elevator), new WaitUntilCommand(() -> climbTwo.getAsBoolean()), new ClimbStageTwo(wrist, elevator)));
     climbThree.onTrue(new ConditionalCommand(new ClimbStageThree(wrist, elevator), new InstantCommand(), () -> elevator.getPosition() > 0.5));
     unwindWinch.toggleOnTrue(new UnwindWinch(elevator));
-    shoot.onTrue(new ConditionalCommand(new Shoot(flywheel), new SequentialCommandGroup(
-                        flywheel.runOnce(flywheel::spinFlywheel), 
-                        new WaitCommand(1), 
-                        new Shoot(flywheel)), () -> elevator.atAmpPosition()));
+
+    spinFlywheel.onTrue(new InstantCommand(() -> flywheel.spinFlywheel()));
+    shoot.onTrue(new Shoot(flywheel));
+
     ampButton.toggleOnTrue(new ConditionalCommand(drivebase.driveToPose(new Pose2d(14.6, 7.6, new Rotation2d(1.521))), drivebase.driveToPose(new Pose2d(14.6, 7.5, new Rotation2d(1.521))), () -> DriverStation.getAlliance().get() == Alliance.Blue));
     }
 

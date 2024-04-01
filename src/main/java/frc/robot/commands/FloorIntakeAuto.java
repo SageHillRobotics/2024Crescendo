@@ -11,14 +11,14 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Wrist;
 
 
-public class FloorIntake extends SequentialCommandGroup{
-    public FloorIntake(Elevator elevator, Intake intake, Flywheel flywheel, Wrist wrist){
+public class FloorIntakeAuto extends SequentialCommandGroup{
+    public FloorIntakeAuto(Elevator elevator, Intake intake, Flywheel flywheel, Wrist wrist){
     addCommands(intake.runOnce(intake::extend),
                     flywheel.runOnce(flywheel::intake),
                     new WaitUntilCommand(intake::atExtendedPosition), 
                     new ParallelCommandGroup(wrist.runOnce(wrist::intakePosition), elevator.runOnce(elevator::intakePosition)),
                     new WaitUntilCommand(wrist::atIntakePosition),
-                    new SpinIntake(intake, flywheel), 
+                    new SpinIntakeAuto(intake, flywheel), 
                     new ParallelCommandGroup(wrist.runOnce(wrist::retract), elevator.runOnce(elevator::retract)),
                     new WaitCommand(.3),
                     intake.runOnce(intake::retract));

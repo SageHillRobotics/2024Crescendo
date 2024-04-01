@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.669450044631958,
-      "y": 4.3586554527282715
+      "x": 1.019559621810913,
+      "y": 4.335489749908447
     },
-    "rotation": 119.0546206288385
+    "rotation": 134.19310189001874
   },
   "command": {
     "type": "sequential",
@@ -59,9 +59,16 @@
                 }
               },
               {
-                "type": "path",
+                "type": "sequential",
                 "data": {
-                  "pathName": "2NoteBot.2"
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "2NoteBot.2"
+                      }
+                    }
+                  ]
                 }
               }
             ]

@@ -14,13 +14,19 @@
         {
           "type": "named",
           "data": {
+            "name": "wristShoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "spinFlywheel"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 0.25
           }
         },
         {
@@ -54,6 +60,12 @@
                       "data": {
                         "name": "spinFlywheel"
                       }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "wristShoot"
+                      }
                     }
                   ]
                 }
@@ -84,6 +96,12 @@
           "type": "path",
           "data": {
             "pathName": "4Note.3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
           }
         },
         {
@@ -152,7 +170,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.1
+            "waitTime": 0.2
           }
         },
         {
@@ -197,13 +215,13 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.75
+                        "waitTime": 1.0
                       }
                     },
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "4NoteMid.8"
+                        "pathName": "4Note.8"
                       }
                     }
                   ]

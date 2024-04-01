@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 0.5914867520332336,
-      "y": 4.3586554527282715
+      "x": 0.6905636191368103,
+      "y": 6.688438415527344
     },
-    "rotation": 122.12500652829955
+    "rotation": -122.38067843942696
   },
   "command": {
     "type": "sequential",
@@ -14,19 +14,19 @@
         {
           "type": "named",
           "data": {
-            "name": "wristShoot"
+            "name": "spinFlywheel"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "spinFlywheel"
+            "name": "wristShoot"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 1.0
           }
         },
         {
@@ -36,9 +36,15 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Taxi"
+            "pathName": "taxiamp"
           }
         }
       ]
