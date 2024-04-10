@@ -16,7 +16,7 @@ public class Wrist extends SubsystemBase{
     private static final double INTAKE_POSITION = 19.24;
     private static final double AMP_POSITION = 21;
     private static final double PARALLEL_POSITION = 25;
-    private static final double CLIMB_POSITION = 42;
+    private static final double CLIMB_POSITION = 44;
     private static final double SOURCE_POSITION = 45.585;
     private CANSparkMax angleMotor;
     private SparkPIDController wristPID;

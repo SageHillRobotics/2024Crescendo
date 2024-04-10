@@ -8,9 +8,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,12 +17,10 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.Aim;
 import frc.robot.commands.ClimbStageOne;
 import frc.robot.commands.ClimbStageThree;
 import frc.robot.commands.ClimbStageTwo;
@@ -206,7 +202,8 @@ public class RobotContainer
     spinFlywheel.onTrue(new InstantCommand(() -> flywheel.spinFlywheel()));
     shoot.onTrue(new Shoot(flywheel));
 
-    ampButton.toggleOnTrue(new ConditionalCommand(drivebase.driveToPose(new Pose2d(14.6, 7.6, new Rotation2d(1.521))), drivebase.driveToPose(new Pose2d(14.6, 7.5, new Rotation2d(1.521))), () -> DriverStation.getAlliance().get() == Alliance.Blue));
+    ampButton.onTrue(new ParallelCommandGroup(elevator.runOnce(elevator::intakePosition), wrist.runOnce(wrist::climbPosition)));
+    //ampButton.toggleOnTrue(new ConditionalCommand(drivebase.driveToPose(new Pose2d(14.6, 7.6, new Rotation2d(1.521))), drivebase.driveToPose(new Pose2d(14.6, 7.5, new Rotation2d(1.521))), () -> DriverStation.getAlliance().get() == Alliance.Blue));
     }
 
     /**
