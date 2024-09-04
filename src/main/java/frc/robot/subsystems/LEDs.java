@@ -36,6 +36,7 @@ public class LEDs extends SubsystemBase{
         topElevator.setData(ledBuffer); 
     }
     public void flash(){
+        timer.restart();
         if (timer.get() < 0.1){
             setGreen();
         }

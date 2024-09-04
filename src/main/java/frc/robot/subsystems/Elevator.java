@@ -63,7 +63,7 @@ public class Elevator extends SubsystemBase{
         pidController.setP(0.17);
         pidController.setI(0);
         pidController.setD(.15);
-        pidController.setFF(.06);
+        pidController.setFF(.07);
         pidController.setOutputRange(-1, 1);
 
         leader.burnFlash();
@@ -113,10 +113,10 @@ public class Elevator extends SubsystemBase{
         bottomRight.setIdleMode(IdleMode.kCoast);
         topLeft.setIdleMode(IdleMode.kCoast);
         bottomLeft.setIdleMode(IdleMode.kCoast);
-        winch.set(.50);
+        winch.set(-.50);
     }
     public void unwindWinch(){
-        winch.set(-.25);
+        winch.set(.25);
     }
     public boolean atWinchPosition(){
         return throughBoreEncoder.getPosition() <= FINAL_CLIMB_POSITION;

@@ -19,6 +19,7 @@ public class LEDCommand extends Command{
     @Override
     public void execute(){
         if (intake.getCurrent() > 10){
+            
             led.flash();
         }
         else if (elevator.getPosition() > 0.1){
