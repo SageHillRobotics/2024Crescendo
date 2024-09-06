@@ -3,72 +3,61 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 14.416539666412666,
-        "y": 5.6
+        "x": 2.0,
+        "y": 7.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 14.201208336505482,
-        "y": 5.6
-      },
-      "isLocked": true,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 12.828423244809452,
-        "y": 5.6
-      },
-      "prevControl": {
-        "x": 13.166445332215012,
-        "y": 5.608909908336645
-      },
-      "nextControl": {
-        "x": 12.465941001326447,
-        "y": 5.590445347557362
+        "x": 3.0,
+        "y": 7.0
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 11.12753052042121,
-        "y": 2.9685647912962487
+        "x": 4.0,
+        "y": 6.0
       },
       "prevControl": {
-        "x": 10.866298641475971,
-        "y": 2.9670207974675202
+        "x": 3.0,
+        "y": 6.0
       },
       "nextControl": {
-        "x": 11.39048650036734,
-        "y": 2.970118975310479
+        "x": 5.0,
+        "y": 6.0
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.737998453574591,
-        "y": 4.296246501214754
+        "x": 4.817886339476383,
+        "y": 3.1374548443541332
       },
       "prevControl": {
-        "x": 2.419104343564149,
-        "y": 4.261691025622322
+        "x": 5.793414096087453,
+        "y": 2.918287095833451
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [
     {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": 0.0,
-      "rotateFast": true
+      "name": "New Event Marker",
+      "waypointRelativePos": 1.2,
+      "command": {
+        "type": "parallel",
+        "data": {
+          "commands": []
+        }
+      }
     }
   ],
-  "constraintZones": [],
-  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -82,6 +71,9 @@
   },
   "reversed": false,
   "folder": null,
-  "previewStartingState": null,
-  "useDefaultConstraints": false
+  "previewStartingState": {
+    "rotation": 0,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
 }
