@@ -16,12 +16,6 @@
           "data": {
             "pathName": "4Note"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shoot"
-          }
         }
       ]
     }
