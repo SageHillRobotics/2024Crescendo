@@ -14,7 +14,7 @@
     "angle": true
   },
   "angle": {
-    "type": "sparkmax",
+    "type": "talonfx",
     "id": 13,
     "canbus": null
   },
