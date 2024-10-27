@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.3321385383605957,
+      "x": 1.351629376411438,
       "y": 5.567087173461914
     },
-    "rotation": 180.02333923010465
+    "rotation": 180.0
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "New Path (2)"
+            "pathName": "4Note"
           }
         }
       ]

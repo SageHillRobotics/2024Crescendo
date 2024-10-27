@@ -7,8 +7,8 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,18 +30,18 @@ import frc.robot.commands.LEDCommand;
 import frc.robot.commands.Shoot;
 import frc.robot.commands.ShootAuto;
 import frc.robot.commands.SpinIntake;
-import frc.robot.commands.TeleopSwerve;
 import frc.robot.commands.UnwindWinch;
+import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.LEDs;
-import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Wrist;
 
-import java.io.File;
-
+import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -52,10 +52,15 @@ import com.pathplanner.lib.auto.NamedCommands;
  */
 public class RobotContainer
 {
+    private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
+    private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
   // The robot's subsystems and commands are defined here...
-    private final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-                                                                         "swerve"));
+    private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+      .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
+
     public final Intake intake = new Intake();
     public final Elevator elevator = new Elevator();
     public final Flywheel flywheel = new Flywheel();
@@ -130,15 +135,25 @@ public class RobotContainer
     // controls are front-left positive
     // left stick controls translation
     // right stick controls the angular velocity of the robot
-    drivebase.setDefaultCommand(
-      new TeleopSwerve(
-                drivebase, 
-                () -> -driver.getRawAxis(translationAxis), 
-                () -> -driver.getRawAxis(strafeAxis), 
-                () -> cwButton.getAsBoolean(),
-                () -> ccwButton.getAsBoolean()
-            )
+    // drivebase.setDefaultCommand(
+    //   new TeleopSwerve(
+    //             drivebase, 
+    //             () -> -driver.getRawAxis(translationAxis), 
+    //             () -> -driver.getRawAxis(strafeAxis), 
+    //             () -> cwButton.getAsBoolean(),
+    //             () -> ccwButton.getAsBoolean()
+    //         )
 
+    // );
+    drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+    drivetrain.applyRequest(() -> drive.withVelocityX(-driver.getRawAxis(translationAxis) * MaxSpeed) // Drive forward with
+                                                                                       // negative Y (forward)
+        .withVelocityY(-driver.getRawAxis(strafeAxis) * MaxSpeed) // Drive left with negative X (left)
+        .withRotationalRate(
+          cwButton.getAsBoolean() && !ccwButton.getAsBoolean() ? 0.5 * MaxAngularRate : 
+          (ccwButton.getAsBoolean() && !cwButton.getAsBoolean() ? -0.5 * MaxAngularRate : 0)
+        )
+      )
     );
     leds.setDefaultCommand(new LEDCommand(leds, elevator, intake));
     //wrist.setDefaultCommand(wrist.runOnce(wrist::retract));
@@ -155,11 +170,11 @@ public class RobotContainer
     {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
-    zeroGyro.onTrue((Commands.runOnce(drivebase::zeroGyro)));
-    ampButton.whileTrue(
-        Commands.deferredProxy(() -> drivebase.driveToPose(
-                                    new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
-                                ));
+    zeroGyro.onTrue((Commands.runOnce(() -> drivetrain.seedFieldRelative())));
+    // ampButton.whileTrue(
+    //     Commands.deferredProxy(() -> drivebase.driveToPose(
+    //                                 new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0)))
+    //                             ));
     // driverXbox.x().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
     
     
@@ -203,7 +218,7 @@ public class RobotContainer
     shoot.onTrue(new Shoot(flywheel));
 
     ampButton.onTrue(new ParallelCommandGroup(elevator.runOnce(elevator::intakePosition), wrist.runOnce(wrist::climbPosition)));
-    //ampButton.toggleOnTrue(new ConditionalCommand(drivebase.driveToPose(new Pose2d(14.6, 7.6, new Rotation2d(1.521))), drivebase.driveToPose(new Pose2d(14.6, 7.5, new Rotation2d(1.521))), () -> DriverStation.getAlliance().get() == Alliance.Blue));
+    ampButton.toggleOnTrue(new ConditionalCommand(drivetrain.driveToPose(new Pose2d(14.6, 7.6, new Rotation2d(1.521))), drivetrain.driveToPose(new Pose2d(14.6, 7.5, new Rotation2d(1.521))), () -> DriverStation.getAlliance().get() == Alliance.Blue));
     }
 
     /**
@@ -213,8 +228,8 @@ public class RobotContainer
      */
     public Command getAutonomousCommand()
     {
-        // An example command will be run in autonomous
-        return autoChooser.getSelected();
+        //return autoChooser.getSelected();
+        return null;
     }
 
     public void setDriveMode()
@@ -222,8 +237,4 @@ public class RobotContainer
     //drivebase.setDefaultCommand();
     }
 
-    public void setMotorBrake(boolean brake)
-    {
-    drivebase.setMotorBrake(brake);
-    }
 }
