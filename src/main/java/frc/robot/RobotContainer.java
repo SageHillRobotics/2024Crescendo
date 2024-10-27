@@ -7,8 +7,8 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -40,8 +40,6 @@ import frc.robot.subsystems.LEDs;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Wrist;
 
-import java.io.File;
-
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -69,7 +67,7 @@ public class RobotContainer
     public final Wrist wrist = new Wrist();
     public final LEDs leds = new LEDs();
     public final Vision vision = new Vision();
-    //private SendableChooser<Command> autoChooser;    
+    private SendableChooser<Command> autoChooser;    
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandJoystick driver = new CommandJoystick(0);
@@ -112,9 +110,9 @@ public class RobotContainer
     NamedCommands.registerCommand("spinFlywheel", new InstantCommand(() -> flywheel.spinFlywheel()));
     NamedCommands.registerCommand("shoot", new ShootAuto(flywheel));
 
-    //autoChooser = AutoBuilder.buildAutoChooser();
+    autoChooser = AutoBuilder.buildAutoChooser();
 
-    //SmartDashboard.putData("Auto Chooser", autoChooser);
+    SmartDashboard.putData("Auto Chooser", autoChooser);
 
     // Configure the trigger bindings
     configureBindings();
@@ -220,7 +218,7 @@ public class RobotContainer
     shoot.onTrue(new Shoot(flywheel));
 
     ampButton.onTrue(new ParallelCommandGroup(elevator.runOnce(elevator::intakePosition), wrist.runOnce(wrist::climbPosition)));
-    //ampButton.toggleOnTrue(new ConditionalCommand(drivebase.driveToPose(new Pose2d(14.6, 7.6, new Rotation2d(1.521))), drivebase.driveToPose(new Pose2d(14.6, 7.5, new Rotation2d(1.521))), () -> DriverStation.getAlliance().get() == Alliance.Blue));
+    ampButton.toggleOnTrue(new ConditionalCommand(drivetrain.driveToPose(new Pose2d(14.6, 7.6, new Rotation2d(1.521))), drivetrain.driveToPose(new Pose2d(14.6, 7.5, new Rotation2d(1.521))), () -> DriverStation.getAlliance().get() == Alliance.Blue));
     }
 
     /**
