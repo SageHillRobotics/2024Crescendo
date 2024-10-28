@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkAbsoluteEncoder;
 import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
@@ -24,6 +25,8 @@ public class Wrist extends SubsystemBase{
     public Wrist(){
         angleMotor = new CANSparkMax(41, MotorType.kBrushless);
         angleMotor.restoreFactoryDefaults();
+
+        angleMotor.setIdleMode(IdleMode.kBrake);
         
         wristPID = angleMotor.getPIDController();
 
