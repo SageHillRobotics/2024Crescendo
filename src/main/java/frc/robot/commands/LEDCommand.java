@@ -1,32 +1,54 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.LEDs;
 
-public class LEDCommand extends Command{
+public class LEDCommand extends Command {
     private LEDs led;
     private Elevator elevator;
-    private Intake intake;
+    private Flywheel flywheel;
+    private boolean blinking = false;
+    private double blinkStartTime = 0.0;
 
-    public LEDCommand(LEDs led, Elevator elevator, Intake intake){
+    public LEDCommand(LEDs led, Elevator elevator, Flywheel flywheel){
         this.led = led;
         this.elevator = elevator;
-        this.intake = intake;
+        this.flywheel = flywheel;
         addRequirements(led);
     }
+
     @Override
     public void execute(){
-        if (intake.getCurrent() > 10){
-            
-            led.flash();
+        double currentTime = Timer.getFPGATimestamp();
+
+        if (!blinking && flywheel.getCurrent() > 25){
+            blinking = true;
+            blinkStartTime = currentTime;
         }
-        else if (elevator.getPosition() > 0.1){
-            led.setRed();
+        if (blinking){
+            if (currentTime - blinkStartTime < 1.0){
+                // Blink LEDs by toggling every 0.2 seconds
+                double elapsedTime = currentTime - blinkStartTime;
+                if ((int)(elapsedTime / 0.2) % 2 == 0){
+                    led.setGreen();
+                } else {
+                    led.setRed();
+                }
+            } else {
+                // Stop blinking after 2 seconds
+                blinking = false;
+            }
         }
-        else{
-            led.setGreen();
+
+        if (!blinking){
+            if (elevator.getPosition() > 0.1){
+                led.setRed();
+            } else {
+                led.setGreen();
+            }
         }
     }
 }
