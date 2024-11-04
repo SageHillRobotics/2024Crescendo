@@ -15,7 +15,7 @@ public class FloorIntake extends SequentialCommandGroup{
     public FloorIntake(Elevator elevator, Intake intake, Flywheel flywheel, Wrist wrist){
     addCommands(intake.runOnce(intake::extend),
                     flywheel.runOnce(flywheel::intake),
-                    new WaitUntilCommand(intake::atExtendedPosition), 
+                    new WaitCommand(.1), 
                     new ParallelCommandGroup(wrist.runOnce(wrist::intakePosition), elevator.runOnce(elevator::intakePosition)),
                     new WaitUntilCommand(wrist::atIntakePosition),
                     new SpinIntake(intake, flywheel), 

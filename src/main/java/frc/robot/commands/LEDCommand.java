@@ -24,21 +24,19 @@ public class LEDCommand extends Command {
     public void execute(){
         double currentTime = Timer.getFPGATimestamp();
 
-        if (!blinking && flywheel.getCurrent() > 25){
+        if (!blinking && flywheel.getCurrent() > 30){
             blinking = true;
             blinkStartTime = currentTime;
         }
         if (blinking){
             if (currentTime - blinkStartTime < 1.0){
-                // Blink LEDs by toggling every 0.2 seconds
                 double elapsedTime = currentTime - blinkStartTime;
-                if ((int)(elapsedTime / 0.2) % 2 == 0){
+                if ((int)(elapsedTime / 0.1) % 2 == 0){
                     led.setGreen();
                 } else {
                     led.setRed();
                 }
             } else {
-                // Stop blinking after 2 seconds
                 blinking = false;
             }
         }

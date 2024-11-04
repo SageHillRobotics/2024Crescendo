@@ -53,7 +53,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 public class RobotContainer
 {
     private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
-    private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
+    private double MaxAngularRate = 2 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
   // The robot's subsystems and commands are defined here...
     private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
@@ -150,12 +150,12 @@ public class RobotContainer
                                                                                        // negative Y (forward)
         .withVelocityY(-driver.getRawAxis(strafeAxis) * MaxSpeed) // Drive left with negative X (left)
         .withRotationalRate(
-          cwButton.getAsBoolean() && !ccwButton.getAsBoolean() ? 0.5 * MaxAngularRate : 
-          (ccwButton.getAsBoolean() && !cwButton.getAsBoolean() ? -0.5 * MaxAngularRate : 0)
+          cwButton.getAsBoolean() && !ccwButton.getAsBoolean() ? -0.75 * MaxAngularRate : 
+          (ccwButton.getAsBoolean() && !cwButton.getAsBoolean() ? 0.75 * MaxAngularRate : 0)
         )
       )
     );
-    leds.setDefaultCommand(new LEDCommand(leds, elevator, intake));
+    leds.setDefaultCommand(new LEDCommand(leds, elevator, flywheel));
     //wrist.setDefaultCommand(wrist.runOnce(wrist::retract));
     }
 
@@ -228,8 +228,7 @@ public class RobotContainer
      */
     public Command getAutonomousCommand()
     {
-        //return autoChooser.getSelected();
-        return null;
+        return autoChooser.getSelected();
     }
 
     public void setDriveMode()

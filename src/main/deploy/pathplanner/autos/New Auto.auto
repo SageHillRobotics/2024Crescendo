@@ -2,10 +2,10 @@
   "version": 1.0,
   "startingPose": {
     "position": {
-      "x": 1.351629376411438,
-      "y": 5.567087173461914
+      "x": 0.6432325839996338,
+      "y": 4.272790908813477
     },
-    "rotation": 180.0
+    "rotation": 138.12212213123019
   },
   "command": {
     "type": "sequential",
@@ -14,7 +14,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "4Note"
+            "pathName": "Centerline Source"
           }
         }
       ]

@@ -16,12 +16,14 @@ public class Wrist extends SubsystemBase{
     private static final double TRAP_POSITION = 49.75;
     private static final double INTAKE_POSITION = 19.24;
     private static final double AMP_POSITION = 21;
-    private static final double PARALLEL_POSITION = 25;
+    private static final double PARALLEL_POSITION = 28;
     private static final double CLIMB_POSITION = 44;
     private static final double SOURCE_POSITION = 45.585;
+
     private CANSparkMax angleMotor;
     private SparkPIDController wristPID;
     private SparkAbsoluteEncoder wristEncoder;
+
     public Wrist(){
         angleMotor = new CANSparkMax(41, MotorType.kBrushless);
         angleMotor.restoreFactoryDefaults();
@@ -34,7 +36,7 @@ public class Wrist extends SubsystemBase{
         wristEncoder.setPositionConversionFactor(100);
 
         wristPID.setFeedbackDevice(wristEncoder);
-        wristPID.setP(.2);
+        wristPID.setP(.1);
         wristPID.setI(0);
         wristPID.setD(.2);
 
@@ -75,7 +77,7 @@ public class Wrist extends SubsystemBase{
     }
 
     public boolean canRetract(){
-        return (Math.abs(wristEncoder.getPosition() - PARALLEL_POSITION) < 4) || wristEncoder.getPosition() > 25;
+        return (Math.abs(wristEncoder.getPosition() - PARALLEL_POSITION) < 2) || wristEncoder.getPosition() > 25;
     }
     public boolean atClimbPosition(){
         return Math.abs(wristEncoder.getPosition() - CLIMB_POSITION) < 1.5;

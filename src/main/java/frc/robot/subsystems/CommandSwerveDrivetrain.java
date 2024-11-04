@@ -48,7 +48,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     private final SwerveRequest.ApplyChassisSpeeds AutoRequest = new SwerveRequest.ApplyChassisSpeeds();
     
     private final Vision vision;
-    private StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault().getStructTopic("Pose", Pose2d.struct).publish();
+    private StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault().getStructTopic("Pose", Pose2d.struct).publish();
 
 
 
@@ -85,7 +85,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             this::getCurrentRobotChassisSpeeds,
             (speeds)->this.setControl(AutoRequest.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
             new HolonomicPathFollowerConfig(new PIDConstants(5, 0, 0),
-                                            new PIDConstants(5, 0, 0),
+                                            new PIDConstants(1, 0, 0),
                                             TunerConstants.kSpeedAt12VoltsMps,
                                             driveBaseRadius,
                                             new ReplanningConfig()),
@@ -154,6 +154,6 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         if (pose.isPresent()){
             this.addVisionMeasurement(pose.get().estimatedPose.toPose2d(), pose.get().timestampSeconds);
           }
-          publisher.set(this.getState().Pose);
+        posePublisher.set(this.getState().Pose);
     }
 }
