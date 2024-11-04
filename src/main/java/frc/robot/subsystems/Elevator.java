@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase{
     private static final  double AMP_ENCODER_VALUE = 2.3;
-    private static final double INTAKE_ENCODER_VALUE = 1.15;
+    private static final double INTAKE_ENCODER_VALUE = 1.1;
     private static final double SOURCE_ENCODER_VALUE = 1.16;
     private static final double CLIMB_ENCODER_POSITION = 1.8;
     private static final double FINAL_CLIMB_POSITION = 1;
@@ -63,7 +63,7 @@ public class Elevator extends SubsystemBase{
         pidController.setP(0.17);
         pidController.setI(0);
         pidController.setD(.15);
-        pidController.setFF(.07);
+        pidController.setFF(.11);
         pidController.setOutputRange(-1, 1);
 
         leader.burnFlash();
@@ -113,7 +113,7 @@ public class Elevator extends SubsystemBase{
         bottomRight.setIdleMode(IdleMode.kCoast);
         topLeft.setIdleMode(IdleMode.kCoast);
         bottomLeft.setIdleMode(IdleMode.kCoast);
-        winch.set(-.50);
+        winch.set(-1);
     }
     public void unwindWinch(){
         winch.set(.25);
